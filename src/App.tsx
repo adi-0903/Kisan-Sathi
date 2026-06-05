@@ -26,6 +26,8 @@ import { RegisterScreen } from "./screens/RegisterScreen";
 import { TasksScreen } from "./screens/TasksScreen";
 import { useNotifications } from "./lib/useNotifications";
 import { SettingsScreen } from "./screens/SettingsScreen";
+import { InventoryScreen } from "./screens/InventoryScreen";
+import { SoilHealthScreen } from "./screens/SoilHealthScreen";
 
 import { SplashScreen } from './screens/SplashScreen';
 
@@ -42,7 +44,7 @@ function BottomNav() {
     { path: "/profile", icon: User, label: t("profile") }
   ];
 
-  if (['/ai', '/disease', '/weather', '/tasks'].includes(location.pathname)) return null;
+  if (['/ai', '/disease', '/weather', '/tasks', '/inventory', '/soil-health'].includes(location.pathname)) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 safe-area-bottom pb-2 z-50">
@@ -165,6 +167,8 @@ function InnerApp() {
           <Route path="/tasks" element={<PageWrapper><TasksScreen /></PageWrapper>} />
           <Route path="/reports" element={<PageWrapper><ReportsScreen /></PageWrapper>} />
           <Route path="/settings" element={<PageWrapper><SettingsScreen /></PageWrapper>} />
+          <Route path="/inventory" element={<PageWrapper><InventoryScreen /></PageWrapper>} />
+          <Route path="/soil-health" element={<PageWrapper><SoilHealthScreen /></PageWrapper>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </AnimatePresence>

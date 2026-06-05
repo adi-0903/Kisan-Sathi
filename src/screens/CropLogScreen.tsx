@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Plus, X } from 'lucide-react';
+import { ChevronLeft, Plus, X, Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { motion, AnimatePresence } from 'motion/react';
@@ -8,7 +8,7 @@ export function CropLogScreen() {
   const navigate = useNavigate();
   const { id } = useParams();
   
-  const [crops] = useSyncState<any[]>('ks_crops', []);
+  const [crops, setCrops] = useSyncState<any[]>('ks_crops', []);
   const crop = crops.find(c => c.id === Number(id));
 
   const [activities, setActivities] = useSyncState<any[]>('ks_activities', []);
@@ -28,6 +28,14 @@ export function CropLogScreen() {
       </div>
     );
   }
+
+  const handleDeleteCrop = () => {
+    if (window.confirm('Are you sure you want to delete this crop? All activities associated with it will also be deleted.')) {
+      setCrops(crops.filter(c => c.id !== Number(id)));
+      setActivities(activities.filter(a => a.cropId !== Number(id)));
+      navigate(-1);
+    }
+  };
 
   const handleAddActivity = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +83,12 @@ export function CropLogScreen() {
 
       <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
         <h2 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Crop</h2>
-        <div className="text-2xl font-bold text-primary mb-4">{crop.name} {crop.variety !== 'Standard' && crop.variety}</div>
+        <div className="flex justify-between items-start mb-4">
+          <div className="text-2xl font-bold text-primary">{crop.name} {crop.variety !== 'Standard' && crop.variety}</div>
+          <button onClick={handleDeleteCrop} className="p-2 text-red-500 bg-red-50 dark:bg-red-900/20 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition">
+            <Trash2 size={18} />
+          </button>
+        </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-600">

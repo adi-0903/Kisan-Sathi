@@ -85,7 +85,9 @@ const resources = {
       "acres": "ACRES",
       "english": "English",
       "hindi": "हिंदी (Hindi)",
-      "punjabi": "ਪੰਜਾਬੀ (Punjabi)"
+      "punjabi": "ਪੰਜਾਬੀ (Punjabi)",
+      "inventory": "Inventory",
+      "soil_health": "Soil Health"
     }
   },
   hi: {
@@ -171,7 +173,9 @@ const resources = {
       "acres": "एकड़",
       "english": "English",
       "hindi": "हिंदी (Hindi)",
-      "punjabi": "ਪੰਜਾਬੀ (Punjabi)"
+      "punjabi": "ਪੰਜਾਬੀ (Punjabi)",
+      "inventory": "इन्वेंटरी (Inventory)",
+      "soil_health": "मृदा स्वास्थ्य (Soil Health)"
     }
   },
   pa: {
@@ -257,7 +261,9 @@ const resources = {
       "acres": "ਏਕੜ",
       "english": "English",
       "hindi": "हिंदी (Hindi)",
-      "punjabi": "ਪੰਜਾਬੀ (Punjabi)"
+      "punjabi": "ਪੰਜਾਬੀ (Punjabi)",
+      "inventory": "ਸਟਾਕ / ਇਨਵੈਂਟਰੀ",
+      "soil_health": "ਮਿੱਟੀ ਦੀ ਸਿਹਤ"
     }
   }
 };

@@ -8,16 +8,6 @@ import { motion, AnimatePresence } from 'motion/react';
 export function DairyScreen() {
   const { t } = useTranslation();
   
-  const milkData = [
-    { day: 'M', value: 12 },
-    { day: 'T', value: 12.5 },
-    { day: 'W', value: 11.8 },
-    { day: 'T', value: 13 },
-    { day: 'F', value: 12.5 },
-    { day: 'S', value: 12.2 },
-    { day: 'S', value: 12.8 },
-  ];
-
   const [cattle, setCattle] = useSyncState('ks_cattle', []);
 
   const [showAdd, setShowAdd] = useState(false);
@@ -58,35 +48,13 @@ export function DairyScreen() {
       {/* Milk Log Card */}
       <section className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Today's Milk</h2>
-          <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded flex items-center">
-            <CheckCircle2 size={12} className="mr-1" /> Logged
-          </span>
+          <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Herd Overview</h2>
         </div>
-        <div className="flex justify-between items-end mb-6">
+        <div className="flex justify-between items-end">
           <div>
-            <div className="text-3xl font-light text-gray-800 dark:text-gray-100">12.5 <span className="text-lg text-gray-400 dark:text-gray-500">Liters</span></div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Morning: 7.0L • Evening: 5.5L</div>
+            <div className="text-3xl font-light text-gray-800 dark:text-gray-100">{cattle.length} <span className="text-lg text-gray-400 dark:text-gray-500">Cattle</span></div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{cattle.filter(c => c.status === 'Milking').length} Milking • {cattle.filter(c => c.status === 'Dry').length} Dry</div>
           </div>
-          <div className="text-right">
-            <div className="text-sm font-bold text-primary dark:text-primary-light">₹625</div>
-            <div className="text-[10px] text-gray-400 dark:text-gray-500">Estimated Income</div>
-          </div>
-        </div>
-
-        <div className="h-24 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={milkData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorMilk" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}/>
-              <Area type="monotone" dataKey="value" stroke="var(--color-primary)" strokeWidth={2} fillOpacity={1} fill="url(#colorMilk)" />
-            </AreaChart>
-          </ResponsiveContainer>
         </div>
       </section>
 

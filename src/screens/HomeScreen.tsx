@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2 } from 'lucide-react';
+import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { useAuth } from '../lib/AuthContext';
@@ -199,21 +199,23 @@ export function HomeScreen() {
         </motion.section>
 
         {/* Smart Alert */}
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <div className="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 rounded-r-2xl rounded-l-sm p-5 flex items-start space-x-4 shadow-sm">
-            <div className="text-orange-500 dark:text-orange-400 mt-0.5 animate-pulse">
-              <AlertTriangle size={24} />
+        {crops.length > 0 && (
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <div className="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 rounded-r-2xl rounded-l-sm p-5 flex items-start space-x-4 shadow-sm">
+              <div className="text-orange-500 dark:text-orange-400 mt-0.5 animate-pulse">
+                <AlertTriangle size={24} />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-base font-bold text-orange-800 dark:text-orange-300">{t("smart_alerts")}</h4>
+                <p className="text-sm text-orange-700 dark:text-orange-400 mt-1 leading-relaxed">Consider checking field moisture levels for {crops[0]?.name || 'your crops'} soon based on upcoming weather forecast.</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <h4 className="text-base font-bold text-orange-800 dark:text-orange-300">{t("smart_alerts")}</h4>
-              <p className="text-sm text-orange-700 dark:text-orange-400 mt-1 leading-relaxed">Wheat crop needs irrigation soon. Moisture looks low based on weather forecast.</p>
-            </div>
-          </div>
-        </motion.section>
+          </motion.section>
+        )}
 
         {/* Action shortcuts */}
         <motion.section 
@@ -234,6 +236,20 @@ export function HomeScreen() {
                <ChevronRight size={24} />
             </div>
             <span className="text-base font-bold text-gray-800 dark:text-gray-200">Live Mandi<br/>Rates</span>
+          </button>
+          
+          <button onClick={() => navigate('/inventory')} className="bg-white dark:bg-gray-800 border-2 border-emerald-500/20 hover:border-emerald-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
+            <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <Package size={24} />
+            </div>
+            <span className="text-base font-bold text-gray-800 dark:text-gray-200">{t('inventory')}</span>
+          </button>
+          
+          <button onClick={() => navigate('/soil-health')} className="bg-white dark:bg-gray-800 border-2 border-amber-600/20 hover:border-amber-600/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
+            <div className="bg-amber-600/10 text-amber-700 dark:text-amber-500 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <TestTube2 size={24} />
+            </div>
+            <span className="text-base font-bold text-gray-800 dark:text-gray-200">{t('soil_health')}</span>
           </button>
         </motion.section>
 
