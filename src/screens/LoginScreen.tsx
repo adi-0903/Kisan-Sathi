@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../lib/AuthContext';
 import { Tractor, ArrowRight } from 'lucide-react';
 
 export function LoginScreen() {
+  const { t } = useTranslation();
   const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
@@ -28,14 +30,14 @@ export function LoginScreen() {
       <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">
         <Tractor size={32} />
       </div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
-      <p className="text-gray-500 mb-8 text-center">Enter your details to manage your farm efficiently.</p>
+      <h1 className="text-3xl font-bold text-gray-800 mb-2">{t("welcome_back")}</h1>
+      <p className="text-gray-500 mb-8 text-center">{t("login_to_continue")}</p>
       
       <form onSubmit={handleLogin} className="w-full space-y-4">
         {error && <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl border border-red-100">{error}</div>}
         
         <div className="space-y-1">
-          <label className="text-sm font-bold text-gray-700 ml-1">Phone Number</label>
+          <label className="text-sm font-bold text-gray-700 ml-1">{t("phone_number")}</label>
           <input
             type="tel"
             value={phone}
@@ -46,7 +48,7 @@ export function LoginScreen() {
         </div>
         
         <div className="space-y-1">
-          <label className="text-sm font-bold text-gray-700 ml-1">4-Digit PIN</label>
+          <label className="text-sm font-bold text-gray-700 ml-1">{t("pin_code")}</label>
           <input
             type="password"
             maxLength={4}
@@ -58,14 +60,14 @@ export function LoginScreen() {
         </div>
 
         <button type="submit" className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-md flex items-center justify-center space-x-2 mt-6 active:scale-95 transition-transform">
-          <span>Login securely</span>
+          <span>{t("login")}</span>
           <ArrowRight size={18} />
         </button>
       </form>
 
       <div className="mt-8 text-center">
-        <span className="text-gray-500 text-sm">Don't have an account? </span>
-        <button onClick={() => navigate('/register')} className="text-primary font-bold text-sm">Register here</button>
+        <span className="text-gray-500 text-sm">{t("no_account")} </span>
+        <button onClick={() => navigate('/register')} className="text-primary font-bold text-sm">{t("create_one")}</button>
       </div>
     </div>
   );

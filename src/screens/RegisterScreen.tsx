@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../lib/AuthContext';
 import { Tractor, UserPlus } from 'lucide-react';
 
 export function RegisterScreen() {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
@@ -42,25 +44,25 @@ export function RegisterScreen() {
       <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center text-secondary mb-4">
         <UserPlus size={32} />
       </div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
-      <p className="text-gray-500 mb-8 text-center">Join KisanSaathi today.</p>
+      <h1 className="text-3xl font-bold text-gray-800 mb-2">{t("create_account")}</h1>
+      <p className="text-gray-500 mb-8 text-center">{t("join_kisansaathi")}</p>
       
       <form onSubmit={handleRegister} className="w-full space-y-4 mb-8">
         {error && <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl border border-red-100">{error}</div>}
         
         <div className="space-y-1">
-          <label className="text-sm font-bold text-gray-700 ml-1">Full Name *</label>
+          <label className="text-sm font-bold text-gray-700 ml-1">{t("full_name")} *</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-secondary/50"
-            placeholder="Farmer Name"
+            placeholder={t("full_name")}
           />
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-bold text-gray-700 ml-1">Phone Number *</label>
+          <label className="text-sm font-bold text-gray-700 ml-1">{t("phone_number")} *</label>
           <input
             type="tel"
             value={phone}
@@ -71,7 +73,7 @@ export function RegisterScreen() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-bold text-gray-700 ml-1">Set a 4-Digit PIN *</label>
+          <label className="text-sm font-bold text-gray-700 ml-1">{t("pin_code")} *</label>
           <input
             type="password"
             maxLength={4}
@@ -84,29 +86,29 @@ export function RegisterScreen() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-sm font-bold text-gray-700 ml-1">Village</label>
+            <label className="text-sm font-bold text-gray-700 ml-1">{t("village")}</label>
             <input
               type="text"
               value={village}
               onChange={e => setVillage(e.target.value)}
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-secondary/50"
-              placeholder="Village Name"
+              placeholder={t("village")}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-bold text-gray-700 ml-1">State</label>
+            <label className="text-sm font-bold text-gray-700 ml-1">{t("state")}</label>
             <input
               type="text"
               value={state}
               onChange={e => setState(e.target.value)}
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-secondary/50"
-              placeholder="State"
+              placeholder={t("state")}
             />
           </div>
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-bold text-gray-700 ml-1">Total Land</label>
+          <label className="text-sm font-bold text-gray-700 ml-1">{t("total_land")}</label>
           <div className="relative">
             <input
               type="number"
@@ -115,18 +117,18 @@ export function RegisterScreen() {
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-secondary/50"
               placeholder="0"
             />
-            <span className="absolute right-3 top-3.5 text-xs font-bold text-gray-400">ACRES</span>
+            <span className="absolute right-3 top-3.5 text-xs font-bold text-gray-400">{t("acres")}</span>
           </div>
         </div>
 
         <button type="submit" className="w-full bg-secondary text-white font-bold py-4 rounded-xl shadow-md mt-6 active:scale-95 transition-transform">
-          Register
+          {t("create_account")}
         </button>
       </form>
 
       <div className="mt-auto text-center">
-        <span className="text-gray-500 text-sm">Already registered? </span>
-        <button onClick={() => navigate('/')} className="text-secondary font-bold text-sm">Login</button>
+        <span className="text-gray-500 text-sm">{t("have_account")} </span>
+        <button onClick={() => navigate('/')} className="text-secondary font-bold text-sm">{t("sign_in")}</button>
       </div>
     </div>
   );

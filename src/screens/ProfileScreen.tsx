@@ -137,19 +137,19 @@ export function ProfileScreen() {
             <button onClick={() => navigate('/reports')} className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors">
               <div className="flex items-center space-x-3">
                 <FileText size={18} className="text-gray-400" />
-                <span>Farm Reports</span>
+                <span>{t('farm_reports')}</span>
               </div>
             </button>
             <button onClick={() => navigate('/settings')} className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors">
               <div className="flex items-center space-x-3">
                 <Settings size={18} className="text-gray-400" />
-                <span>Settings</span>
+                <span>{t('settings')}</span>
               </div>
             </button>
             <button onClick={logout} className="w-full flex items-center justify-between px-4 py-3 text-sm text-red-600 dark:text-red-400 font-medium hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
               <div className="flex items-center space-x-3">
                 <LogOut size={18} className="text-red-400" />
-                <span>Log Out</span>
+                <span>{t('logout')}</span>
               </div>
             </button>
           </div>

@@ -114,11 +114,11 @@ export function HomeScreen() {
           <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex items-center space-x-2">
               <Cloud size={18} className="text-gray-400" />
-              <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">5-Day Forecast</h3>
+              <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">{t("5_day_forecast")}</h3>
             </div>
             {sprayRec && (
               <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${sprayRec.isGood ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'}`}>
-                {sprayRec.recommendation || 'Spray Rec'}
+                {sprayRec.recommendation || t("spray_rec")}
               </div>
             )}
           </div>
@@ -156,7 +156,7 @@ export function HomeScreen() {
                       </div>
                       <div>
                         <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                          <strong className="text-gray-900 dark:text-white block mb-0.5">AI Spray Advice</strong>
+                          <strong className="text-gray-900 dark:text-white block mb-0.5">{t("ai_spray_advice")}</strong>
                           {sprayRec.reasoning}
                         </p>
                       </div>
@@ -207,7 +207,7 @@ export function HomeScreen() {
               <AlertTriangle size={24} />
             </div>
             <div className="flex-1">
-              <h4 className="text-base font-bold text-orange-800 dark:text-orange-300">Smart Alert</h4>
+              <h4 className="text-base font-bold text-orange-800 dark:text-orange-300">{t("smart_alerts")}</h4>
               <p className="text-sm text-orange-700 dark:text-orange-400 mt-1 leading-relaxed">Wheat crop needs irrigation soon. Moisture looks low based on weather forecast.</p>
             </div>
           </div>

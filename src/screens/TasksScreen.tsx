@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, Plus, Calendar, CheckCircle2, Circle, AlertCircle, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSyncState } from '../lib/store';
 
 export type Task = {
@@ -11,6 +12,7 @@ export type Task = {
 };
 
 export function TasksScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [tasks, setTasks] = useSyncState<Task[]>('ks_tasks', []);
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -87,7 +89,7 @@ export function TasksScreen() {
         <button onClick={() => navigate(-1)} className="mr-3 p-2 rounded-full bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-sm border border-gray-100 dark:border-gray-700">
           <ChevronLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Schedule & Tasks</h1>
+        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">{t("schedule_tasks")}</h1>
       </header>
 
       {/* View Toggles */}
@@ -96,22 +98,22 @@ export function TasksScreen() {
           onClick={() => { setFilterMode('all'); setSelectedDate(null); }}
           className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${filterMode === 'all' && !selectedDate ? 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}
         >
-          All Tasks
+          {t("all_tasks")}
         </button>
         <button 
           onClick={() => { setFilterMode('urgent'); setSelectedDate(null); }}
           className={`flex-1 py-1.5 text-sm font-bold rounded-lg transition-colors ${filterMode === 'urgent' && !selectedDate ? 'bg-white dark:bg-gray-700 text-orange-600 dark:text-orange-400 shadow-sm' : 'text-gray-500 dark:text-gray-400'}`}
         >
-          Urgent / Overdue
+          {t("urgent_overdue")}
         </button>
       </div>
 
       {/* Visual Calendar Tape */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Calendar View</h2>
+          <h2 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{t("calendar_view")}</h2>
           {selectedDate && (
-             <button onClick={() => setSelectedDate(null)} className="text-xs text-primary font-bold">Clear Date</button>
+             <button onClick={() => setSelectedDate(null)} className="text-xs text-primary font-bold">{t("clear_date")}</button>
           )}
         </div>
         <div className="flex overflow-x-auto space-x-2 pb-2 scrollbar-hide -mx-2 px-2">
@@ -144,12 +146,12 @@ export function TasksScreen() {
       </div>
 
       <form onSubmit={addTask} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-3">
-        <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Add New Task</h2>
+        <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">{t("add_new_task")}</h2>
         <input
           type="text"
           value={newTaskTitle}
           onChange={(e) => setNewTaskTitle(e.target.value)}
-          placeholder="What needs to be done? (e.g. Urea spray)"
+          placeholder={t("task_placeholder")}
           className="w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
         />
         <div className="flex space-x-3">
@@ -170,7 +172,7 @@ export function TasksScreen() {
         {overdueTasks.length > 0 && !selectedDate && (
            <div className="bg-orange-50 dark:bg-orange-900/10 rounded-xl p-3 border border-orange-100 dark:border-orange-800/30">
             <h3 className="text-xs font-bold text-orange-600 dark:text-orange-400 tracking-wider uppercase mb-3 flex items-center">
-               <AlertCircle size={14} className="mr-1.5" /> Overdue Tasks
+               <AlertCircle size={14} className="mr-1.5" /> {t("overdue_tasks")}
             </h3>
             <div className="space-y-2">
               {overdueTasks.map((task) => (
@@ -195,7 +197,7 @@ export function TasksScreen() {
 
         {otherPendingTasks.length > 0 && (
           <div>
-            <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase mb-3 px-1">{selectedDate ? `Tasks on ${selectedDate}` : 'Upcoming'}</h3>
+            <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase mb-3 px-1">{selectedDate ? `${t("tasks_on")} ${selectedDate}` : t("upcoming")}</h3>
             <div className="space-y-2">
               {otherPendingTasks.map((task) => {
                  const status = getTaskStatus(task.date);
@@ -224,7 +226,7 @@ export function TasksScreen() {
 
         {completedTasks.length > 0 && filterMode !== 'urgent' && (
           <div>
-            <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase mb-3 mt-6 px-1">Completed</h3>
+            <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase mb-3 mt-6 px-1">{t("completed")}</h3>
             <div className="space-y-2 opacity-70">
               {completedTasks.map((task) => (
                 <div key={task.id} className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-between">
@@ -245,7 +247,7 @@ export function TasksScreen() {
         {displayedTasks.length === 0 && completedTasks.length === 0 && (
           <div className="text-center py-10 opacity-50">
             <Clock size={48} className="mx-auto mb-3 text-gray-400" />
-            <p className="text-gray-600 dark:text-gray-400 font-medium text-sm">No tasks found for this view.</p>
+            <p className="text-gray-600 dark:text-gray-400 font-medium text-sm">{t("no_tasks")}</p>
           </div>
         )}
       </div>
