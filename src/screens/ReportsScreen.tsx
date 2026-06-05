@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
 import { ChevronLeft, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
@@ -48,37 +47,59 @@ export function ReportsScreen() {
     doc.setFontSize(12);
     doc.text(`Report Period: ${reportType === 'monthly' ? 'Last 30 Days' : 'This Year'}`, 14, 30);
 
+    let currentY = 45;
+
+    // Helper to draw a simple row
+    const drawRow = (rowText: string[], y: number) => {
+      doc.text(rowText[0].toString().padEnd(20, ' '), 14, y);
+      doc.text(rowText[1].toString().padEnd(30, ' '), 60, y);
+      doc.text(rowText[2].toString(), 130, y);
+    };
+
     // Expenses Table
     doc.setFontSize(16);
-    doc.text('Expenses', 14, 45);
-    (doc as any).autoTable({
-      startY: 50,
-      head: [['Date', 'Category', 'Amount (INR)']],
-      body: data.expenses.map(e => [e.date, e.category, e.amount]),
-      theme: 'grid',
-      headStyles: { fillColor: [45, 122, 58] }
+    doc.text('Expenses', 14, currentY);
+    currentY += 8;
+    doc.setFontSize(10);
+    drawRow(['Date', 'Category', 'Amount (INR)'], currentY);
+    currentY += 2;
+    doc.line(14, currentY, 196, currentY);
+    currentY += 6;
+    data.expenses.forEach(e => {
+      drawRow([e.date, e.category, e.amount.toString()], currentY);
+      currentY += 6;
     });
+
+    currentY += 10;
 
     // Milk Production Table
-    let finalY = (doc as any).lastAutoTable.finalY || 50;
-    doc.text('Monthly Milk Production estimates', 14, finalY + 15);
-    (doc as any).autoTable({
-      startY: finalY + 20,
-      head: [['Cattle Tag', 'Breed', 'Est. Monthly Yield']],
-      body: data.milkProduction.map(m => [m.tag, m.breed, m.monthlyYield]),
-      theme: 'grid',
-      headStyles: { fillColor: [245, 166, 35] }
+    doc.setFontSize(16);
+    doc.text('Monthly Milk Production estimates', 14, currentY);
+    currentY += 8;
+    doc.setFontSize(10);
+    drawRow(['Cattle Tag', 'Breed', 'Est. Monthly Yield'], currentY);
+    currentY += 2;
+    doc.line(14, currentY, 196, currentY);
+    currentY += 6;
+    data.milkProduction.forEach(m => {
+      drawRow([m.tag, m.breed, m.monthlyYield], currentY);
+      currentY += 6;
     });
 
+    currentY += 10;
+
     // Activities Table
-    finalY = (doc as any).lastAutoTable.finalY || 100;
-    doc.text('Farm Activities', 14, finalY + 15);
-    (doc as any).autoTable({
-      startY: finalY + 20,
-      head: [['Date', 'Activity', 'Status']],
-      body: data.activity.map(a => [a.date, a.activity, a.status]),
-      theme: 'grid',
-      headStyles: { fillColor: [26, 115, 232] }
+    doc.setFontSize(16);
+    doc.text('Farm Activities', 14, currentY);
+    currentY += 8;
+    doc.setFontSize(10);
+    drawRow(['Date', 'Activity', 'Status'], currentY);
+    currentY += 2;
+    doc.line(14, currentY, 196, currentY);
+    currentY += 6;
+    data.activity.forEach(a => {
+      drawRow([a.date, a.activity, a.status], currentY);
+      currentY += 6;
     });
 
     doc.save('KisanSaathi_Report.pdf');
