@@ -27,6 +27,8 @@ import { TasksScreen } from "./screens/TasksScreen";
 import { useNotifications } from "./lib/useNotifications";
 import { SettingsScreen } from "./screens/SettingsScreen";
 
+import { SplashScreen } from './screens/SplashScreen';
+
 function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -173,11 +175,32 @@ function InnerApp() {
 }
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 4000); // 4s duration
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <InnerApp />
+          <AnimatePresence mode="wait">
+            {showSplash ? (
+              <motion.div key="splash" className="fixed inset-0 z-[100] w-full bg-[#05291A] flex items-center justify-center" exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+                <div className="w-full max-w-md mx-auto h-full relative">
+                  <SplashScreen />
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div key="app" className="h-full w-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+                <InnerApp />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

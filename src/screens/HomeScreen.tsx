@@ -13,6 +13,8 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [tasks] = useSyncState<Task[]>('ks_tasks', []);
+  const [crops] = useSyncState<any[]>('ks_crops', []);
+  const [cattle] = useSyncState<any[]>('ks_cattle', []);
 
   const [weatherData, setWeatherData] = useState<any>(null);
   const [sprayRec, setSprayRec] = useState<any>(null);
@@ -181,7 +183,7 @@ export function HomeScreen() {
               <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light rounded-full flex items-center justify-center mb-3">
                 <Sprout size={28} />
               </div>
-              <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">2</div>
+              <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">{crops.length}</div>
               <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t("active_crops")}</div>
             </div>
             <div 
@@ -190,8 +192,8 @@ export function HomeScreen() {
               <div className="bg-secondary/10 dark:bg-secondary/20 text-secondary dark:text-secondary-light w-14 h-14 rounded-full flex items-center justify-center mb-3">
                 <Thermometer size={28} />
               </div>
-              <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">12.5</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t("milk_produced")}</div>
+              <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">{cattle.length}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t("cattle_count")}</div>
             </div>
           </div>
         </motion.section>

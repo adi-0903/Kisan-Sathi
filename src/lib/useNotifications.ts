@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSyncState } from './store';
-import { Task } from '../types';
+import { Task } from '../screens/TasksScreen';
 
 export function useNotifications() {
   const [tasks] = useSyncState<Task[]>('ks_tasks', []);

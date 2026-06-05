@@ -9,7 +9,8 @@ import { useSyncState } from '../lib/store';
 export function ReportsScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { cattle, tasks } = useSyncState();
+  const [cattle] = useSyncState<any[]>('ks_cattle', []);
+  const [tasks] = useSyncState<any[]>('ks_tasks', []);
   const [reportType, setReportType] = useState('monthly');
 
   const generateData = () => {
