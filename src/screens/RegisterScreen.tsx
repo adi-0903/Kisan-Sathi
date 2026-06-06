@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../lib/AuthContext';
-import { Tractor, UserPlus } from 'lucide-react';
+import { BrandLogo } from '../components/BrandLogo';
 
 export function RegisterScreen() {
   const { t } = useTranslation();
@@ -41,8 +41,8 @@ export function RegisterScreen() {
 
   return (
     <div className="flex flex-col min-h-screen p-6 max-w-md mx-auto items-center justify-center bg-background py-10">
-      <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center text-secondary mb-4">
-        <UserPlus size={32} />
+      <div className="mb-4">
+        <BrandLogo size={80} />
       </div>
       <h1 className="text-3xl font-bold text-gray-800 mb-2">{t("create_account")}</h1>
       <p className="text-gray-500 mb-8 text-center">{t("join_kisansaathi")}</p>

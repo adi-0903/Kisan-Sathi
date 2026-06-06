@@ -3,10 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Camera, Sparkles, ChevronLeft, Upload, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchVisionDiagnosis } from '../lib/api';
+import { useSubscription } from '../lib/subscription';
+import { PremiumModal } from '../components/PremiumModal';
 
 export function DiseaseDetectorScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { isExpired } = useSubscription();
+  const [showPremiumOptions, setShowPremiumOptions] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -23,6 +27,10 @@ export function DiseaseDetectorScreen() {
   };
 
   const handleAnalyze = async () => {
+    if (isExpired) {
+      setShowPremiumOptions(true);
+      return;
+    }
     if (!image) return;
     setAnalyzing(true);
     try {
@@ -112,6 +120,7 @@ export function DiseaseDetectorScreen() {
           </div>
         )}
       </div>
+      <PremiumModal isOpen={showPremiumOptions} onClose={() => setShowPremiumOptions(false)} message="Your 30-day free trial has expired. Upgrade to unlock AI Disease Scans." />
     </div>
   );
 }

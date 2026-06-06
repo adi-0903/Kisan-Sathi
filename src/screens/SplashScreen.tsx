@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Tractor, Leaf, Sun, CloudRain, Droplets } from 'lucide-react';
+import { BrandLogo } from '../components/BrandLogo';
 
 export function SplashScreen() {
   const [stage, setStage] = useState(0);
@@ -56,37 +57,20 @@ export function SplashScreen() {
         <AnimatePresence>
           {stage >= 1 && (
             <motion.div
-              initial={{ scale: 0, rotate: -45, borderRadius: "50%" }}
+              initial={{ scale: 0, rotate: -45, opacity: 0 }}
               animate={{ 
                 scale: 1, 
                 rotate: 0, 
-                borderRadius: "28%" 
+                opacity: 1
               }}
               transition={{ 
                 duration: 0.8,
                 type: "spring",
                 bounce: 0.5
               }}
-              className="w-32 h-32 bg-gradient-to-br from-[#10B981] to-[#047857] shadow-2xl shadow-[#047857]/60 flex items-center justify-center relative overflow-hidden border-[0.5px] border-white/20"
+              className="z-10"
             >
-              {/* Inner glow */}
-              <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-0 bg-gradient-to-t from-transparent via-white/10 to-transparent pointer-events-none"
-              />
-              
-              <Tractor size={56} className="text-white drop-shadow-md z-10" strokeWidth={1.5} />
-              
-              {/* Sun behind tractor */}
-              <motion.div
-                 initial={{ opacity: 0, scale: 0 }}
-                 animate={{ opacity: 0.6, scale: 1 }}
-                 transition={{ duration: 1, delay: 0.6, type: "spring" }}
-                 className="absolute top-3 right-3 text-yellow-300 z-0"
-              >
-                 <Sun size={36} strokeWidth={2} />
-              </motion.div>
+              <BrandLogo size={128} />
             </motion.div>
           )}
         </AnimatePresence>

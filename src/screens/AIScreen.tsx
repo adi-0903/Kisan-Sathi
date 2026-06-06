@@ -3,10 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { ChevronLeft, Send, Mic, Sparkles, Volume2, SquareSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchChatResponse } from '../lib/api';
+import { useSubscription } from '../lib/subscription';
+import { PremiumModal } from '../components/PremiumModal';
 
 export function AIScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { isExpired } = useSubscription();
+  const [showPremiumOptions, setShowPremiumOptions] = useState(isExpired);
   const [messages, setMessages] = useState<{role: 'user'|'model', text: string}[]>([
     { role: 'model', text: t('greeting') + "! I am Kisan GPT. How can I help you with your farm today?" }
   ]);
@@ -53,6 +57,10 @@ export function AIScreen() {
   };
 
   const handleSend = async (text: string = input, wasVoice: boolean = false) => {
+    if (isExpired) {
+      setShowPremiumOptions(true);
+      return;
+    }
     if (!text.trim()) return;
     const newMsg = { role: 'user' as const, text };
     setMessages(prev => [...prev, newMsg]);
@@ -187,6 +195,7 @@ export function AIScreen() {
           </button>
         </div>
       </div>
+      <PremiumModal isOpen={showPremiumOptions} onClose={() => setShowPremiumOptions(false)} message="Your 30-day free trial has expired. Upgrade to keep using Kisan GPT." />
     </div>
   );
 }

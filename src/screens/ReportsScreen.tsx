@@ -1,15 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { jsPDF } from 'jspdf';
-import { ChevronLeft, Download, FileText, FileSpreadsheet, TrendingUp, IndianRupee, Plus, ArrowUpRight, ArrowDownRight, X } from 'lucide-react';
+import { ChevronLeft, Download, FileText, FileSpreadsheet, TrendingUp, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
+import { useSubscription } from '../lib/subscription';
+import { PremiumModal } from '../components/PremiumModal';
+import { getLogoPngBase64 } from '../lib/pdfLogo';
 
 export function ReportsScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { isExpired } = useSubscription();
+  const [showPremiumOptions, setShowPremiumOptions] = useState(false);
   const [crops] = useSyncState<any[]>('ks_crops', []);
   const [cattle] = useSyncState<any[]>('ks_cattle', []);
 
@@ -21,174 +26,216 @@ export function ReportsScreen() {
   })).sort((a,b) => a.year.localeCompare(b.year)) || [];
 
   const [tasks] = useSyncState<any[]>('ks_tasks', []);
-  const [finances, setFinances] = useSyncState<any[]>('ks_finances', []);
-  const [reportType, setReportType] = useState('monthly');
-  const [activeTab, setActiveTab] = useState<'exports' | 'finance' | 'trends'>('exports');
+  const [activeTab, setActiveTab] = useState<'exports' | 'trends'>('exports');
+  
+  // Export filters
+  const [reportPeriodType, setReportPeriodType] = useState('30'); // 7, 15, 30, 60, single, range
+  const [reportStartDate, setReportStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reportEndDate, setReportEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reportDataType, setReportDataType] = useState('full'); // full, dairy, crop
 
-  // Finance modal state
-  const [showAddFinance, setShowAddFinance] = useState(false);
-  const [financeType, setFinanceType] = useState<'income' | 'expense'>('expense');
-  const [financeAmount, setFinanceAmount] = useState('');
-  const [financeCategory, setFinanceCategory] = useState('');
-  const [financeDate, setFinanceDate] = useState(new Date().toISOString().split('T')[0]);
-
-  const handleAddFinance = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!financeAmount || !financeCategory) return;
-    const newEntry = {
-      id: Date.now(),
-      type: financeType,
-      amount: parseFloat(financeAmount),
-      category: financeCategory,
-      date: financeDate
-    };
-    setFinances([newEntry, ...finances].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-    setShowAddFinance(false);
-    setFinanceAmount('');
-    setFinanceCategory('');
+  const filterByDate = (dateString: string) => {
+    if (!dateString) return true;
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    if (['7', '15', '30', '60'].includes(reportPeriodType)) {
+      const daysToSubtract = parseInt(reportPeriodType, 10);
+      const pastDate = new Date();
+      pastDate.setDate(now.getDate() - daysToSubtract);
+      return date >= pastDate && date <= now;
+    } else if (reportPeriodType === 'single') {
+      const selected = new Date(reportStartDate);
+      return date.toDateString() === selected.toDateString();
+    } else if (reportPeriodType === 'range') {
+      const start = new Date(reportStartDate);
+      const end = new Date(reportEndDate);
+      end.setHours(23, 59, 59, 999);
+      return date >= start && date <= end;
+    }
+    return true;
   };
 
-  const financeSummary = useMemo(() => {
-    let income = 0;
-    let expense = 0;
-    finances.forEach(f => {
-      if (f.type === 'income') income += f.amount;
-      else expense += f.amount;
-    });
-    return { income, expense, balance: income - expense };
-  }, [finances]);
-
   const generateData = () => {
-    const expenses = finances.filter(f => f.type === 'expense').map(f => ({
-      date: f.date, category: f.category, amount: f.amount
-    }));
-    
     // Convert tasks into activity
-    const activity = (tasks || []).map(task => ({
+    const activity = (tasks || []).filter(t => filterByDate(t.date || new Date().toISOString().split('T')[0])).map(task => ({
       date: task.date || new Date().toISOString().split('T')[0],
       activity: task.title,
       status: task.completed ? 'Completed' : 'Pending'
     }));
 
     const milkLogs = JSON.parse(localStorage.getItem('ks_milk_logs') || '[]');
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
+    const filteredMilkLogs = milkLogs.filter((l: any) => filterByDate(l.date));
 
     const milkProduction = cattle?.map(c => {
-      const cowLogs = milkLogs.filter((l: any) => {
-        if (l.cattleId !== c.id) return false;
-        const d = new Date(l.date);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-      });
-      const monthlyTotal = cowLogs.reduce((acc: number, curr: any) => acc + curr.amount, 0);
+      const cowLogs = filteredMilkLogs.filter((l: any) => l.cattleId === c.id);
+      const periodTotal = cowLogs.reduce((acc: number, curr: any) => acc + curr.amount, 0);
 
       return {
         tag: c.id,
         breed: c.breed,
-        monthlyYield: `${monthlyTotal.toFixed(1)} L`
+        yieldTotal: `${periodTotal.toFixed(1)} L`
       };
     }) || [];
 
-    return { expenses, activity, milkProduction };
+    const cropProduction = crops?.filter(c => filterByDate(c.sown)).map((c: any) => ({
+      name: c.name,
+      area: c.area,
+      yield: c.yield ? `${c.yield} t/ha` : 'N/A',
+      sown: c.sown
+    })) || [];
+
+    return { activity, milkProduction, cropProduction };
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
+    if (isExpired) {
+      setShowPremiumOptions(true);
+      return;
+    }
     const doc = new jsPDF();
     const data = generateData();
+    const logoUrl = await getLogoPngBase64();
 
-    doc.setFontSize(20);
-    doc.text('Farm Activity & Finance Report', 14, 22);
+    // Header section
+    doc.setFillColor(22, 163, 74); // primary green color
+    doc.rect(0, 0, 210, 40, 'F');
     
+    if (logoUrl) {
+      doc.addImage(logoUrl, 'PNG', 14, 10, 20, 20);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(28);
+      doc.setFont('helvetica', 'bold');
+      doc.text('KisanSaathi', 40, 22);
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Farm Activity Report', 40, 31);
+    } else {
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(28);
+      doc.setFont('helvetica', 'bold');
+      doc.text('KisanSaathi', 14, 25);
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Farm Activity Report', 14, 34);
+    }
+    
+    const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    doc.text(`Generated: ${currentDate}`, 130, 31);
+    
+    let periodText = `Last ${reportPeriodType} Days`;
+    if (reportPeriodType === '7') periodText = 'Last 7 Days (1 Week)';
+    else if (reportPeriodType === 'single') periodText = reportStartDate;
+    else if (reportPeriodType === 'range') periodText = `${reportStartDate} to ${reportEndDate}`;
+    
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
-    doc.text(`Report Period: ${reportType === 'monthly' ? 'Last 30 Days' : 'This Year'}`, 14, 30);
+    doc.setFont('helvetica', 'italic');
+    doc.text(`Report Period: ${periodText}`, 14, 50);
 
-    let currentY = 45;
+    let currentY = 60;
 
-    // Helper to draw a simple row
-    const drawRow = (rowText: string[], y: number) => {
-      doc.text(rowText[0].toString().padEnd(20, ' '), 14, y);
-      doc.text(rowText[1].toString().padEnd(30, ' '), 60, y);
-      doc.text(rowText[2].toString(), 130, y);
+    // Helper to draw a modern row
+    const drawRow = (rowText: string[], y: number, isHeader: boolean = false) => {
+      doc.setTextColor(isHeader ? 0 : 75, isHeader ? 0 : 85, isHeader ? 0 : 99);
+      doc.setFont('helvetica', isHeader ? 'bold' : 'normal');
+      doc.text(rowText[0] ? rowText[0].toString() : '', 18, y);
+      doc.text(rowText[1] ? rowText[1].toString() : '', 70, y);
+      doc.text(rowText[2] ? rowText[2].toString() : '', 140, y);
     };
 
-    // Expenses Table
-    doc.setFontSize(16);
-    doc.text('Expenses', 14, currentY);
-    currentY += 8;
-    doc.setFontSize(10);
-    drawRow(['Date', 'Category', 'Amount (INR)'], currentY);
-    currentY += 2;
-    doc.line(14, currentY, 196, currentY);
-    currentY += 6;
-    data.expenses.forEach(e => {
-      drawRow([e.date, e.category, e.amount.toString()], currentY);
-      currentY += 6;
-    });
+    const maybeAddPage = (expectedHeight: number) => {
+        if (currentY + expectedHeight > 270) {
+            doc.addPage();
+            currentY = 20;
+        }
+    };
 
-    currentY += 10;
+    if (reportDataType === 'full' || reportDataType === 'dairy') {
+      maybeAddPage(40);
+      // Milk Production Table
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Dairy & Milk Production', 14, currentY);
+      currentY += 8;
+      
+      doc.setFillColor(243, 244, 246);
+      doc.rect(14, currentY, 182, 10, 'F');
+      doc.setFontSize(10);
+      drawRow(['Cattle Tag', 'Breed', 'Total Yield'], currentY + 7, true);
+      currentY += 10;
+      
+      data.milkProduction.forEach((m, idx) => {
+        maybeAddPage(15);
+        if (idx % 2 === 0) {
+            doc.setFillColor(249, 250, 251);
+            doc.rect(14, currentY, 182, 10, 'F');
+        }
+        drawRow([m.tag, m.breed, m.yieldTotal], currentY + 7);
+        currentY += 10;
+      });
 
-    // Milk Production Table
-    doc.setFontSize(16);
-    doc.text('Monthly Milk Production estimates', 14, currentY);
-    currentY += 8;
-    doc.setFontSize(10);
-    drawRow(['Cattle Tag', 'Breed', 'Est. Monthly Yield'], currentY);
-    currentY += 2;
-    doc.line(14, currentY, 196, currentY);
-    currentY += 6;
-    data.milkProduction.forEach(m => {
-      drawRow([m.tag, m.breed, m.monthlyYield], currentY);
-      currentY += 6;
-    });
+      currentY += 10;
+    }
 
-    currentY += 10;
+    if (reportDataType === 'full' || reportDataType === 'crop') {
+      maybeAddPage(40);
+      // Crop Production Table
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Crop Production', 14, currentY);
+      currentY += 8;
 
-    // Activities Table
-    doc.setFontSize(16);
-    doc.text('Farm Activities', 14, currentY);
-    currentY += 8;
-    doc.setFontSize(10);
-    drawRow(['Date', 'Activity', 'Status'], currentY);
-    currentY += 2;
-    doc.line(14, currentY, 196, currentY);
-    currentY += 6;
-    data.activity.forEach(a => {
-      drawRow([a.date, a.activity, a.status], currentY);
-      currentY += 6;
-    });
+      doc.setFillColor(243, 244, 246);
+      doc.rect(14, currentY, 182, 10, 'F');
+      doc.setFontSize(10);
+      drawRow(['Crop Name', 'Area', 'Yield (t/ha)'], currentY + 7, true);
+      currentY += 10;
+      
+      data.cropProduction.forEach((c, idx) => {
+        maybeAddPage(15);
+        if (idx % 2 === 0) {
+            doc.setFillColor(249, 250, 251);
+            doc.rect(14, currentY, 182, 10, 'F');
+        }
+        drawRow([c.name, c.area, c.yield], currentY + 7);
+        currentY += 10;
+      });
+
+      currentY += 10;
+    }
+
+    if (reportDataType === 'full') {
+      maybeAddPage(40);
+      // Activities Table
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Farm Tasks & Activities', 14, currentY);
+      currentY += 8;
+
+      doc.setFillColor(243, 244, 246);
+      doc.rect(14, currentY, 182, 10, 'F');
+      doc.setFontSize(10);
+      drawRow(['Date', 'Activity', 'Status'], currentY + 7, true);
+      currentY += 10;
+
+      data.activity.forEach((a, idx) => {
+        maybeAddPage(15);
+        if (idx % 2 === 0) {
+            doc.setFillColor(249, 250, 251);
+            doc.rect(14, currentY, 182, 10, 'F');
+        }
+        drawRow([a.date, a.activity, a.status], currentY + 7);
+        currentY += 10;
+      });
+    }
 
     doc.save('KisanSaathi_Report.pdf');
-  };
-
-  const handleDownloadCSV = () => {
-    const data = generateData();
-    let csvContent = "data:text/csv;charset=utf-8,";
-    
-    csvContent += "--- EXPENSES ---\n";
-    csvContent += "Date,Category,Amount\n";
-    data.expenses.forEach(e => {
-      csvContent += `${e.date},${e.category},${e.amount}\n`;
-    });
-
-    csvContent += "\n--- MILK PRODUCTION ---\n";
-    csvContent += "Tag,Breed,Est. Monthly Yield\n";
-    data.milkProduction.forEach(m => {
-      csvContent += `${m.tag},${m.breed},${m.monthlyYield}\n`;
-    });
-
-    csvContent += "\n--- ACTIVITIES ---\n";
-    csvContent += "Date,Activity,Status\n";
-    data.activity.forEach(a => {
-      csvContent += `${a.date},${a.activity},${a.status}\n`;
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "KisanSaathi_Report.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
@@ -206,12 +253,6 @@ export function ReportsScreen() {
           className={`pb-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors duration-200 ${activeTab === 'exports' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
         >
           Export
-        </button>
-        <button 
-          onClick={() => setActiveTab('finance')}
-          className={`pb-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors duration-200 ${activeTab === 'finance' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-        >
-          Financials
         </button>
         <button 
           onClick={() => setActiveTab('trends')}
@@ -232,32 +273,76 @@ export function ReportsScreen() {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Reporting Period</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Report Content</label>
                   <select 
-                    value={reportType}
-                    onChange={(e) => setReportType(e.target.value)}
+                    value={reportDataType}
+                    onChange={(e) => setReportDataType(e.target.value)}
                     className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-800 dark:text-gray-100"
                   >
-                    <option value="monthly">This Month</option>
-                    <option value="annual">This Year</option>
+                    <option value="full">Full Report (All Data)</option>
+                    <option value="dairy">Dairy / Milk Report</option>
+                    <option value="crop">Crop Report</option>
                   </select>
                 </div>
 
-                <div className="pt-4 grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Reporting Period</label>
+                  <select 
+                    value={reportPeriodType}
+                    onChange={(e) => setReportPeriodType(e.target.value)}
+                    className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-800 dark:text-gray-100"
+                  >
+                    <option value="7">1 Week</option>
+                    <option value="15">15 Days</option>
+                    <option value="30">30 Days</option>
+                    <option value="60">60 Days</option>
+                    <option value="single">Single Date</option>
+                    <option value="range">Date Range</option>
+                  </select>
+                </div>
+
+                {reportPeriodType === 'single' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Select Date</label>
+                    <input 
+                      type="date" 
+                      value={reportStartDate}
+                      onChange={(e) => setReportStartDate(e.target.value)}
+                      className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-800 dark:text-gray-100 [&::-webkit-calendar-picker-indicator]:dark:invert"
+                    />
+                  </div>
+                )}
+
+                {reportPeriodType === 'range' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+                      <input 
+                        type="date" 
+                        value={reportStartDate}
+                        onChange={(e) => setReportStartDate(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-800 dark:text-gray-100 [&::-webkit-calendar-picker-indicator]:dark:invert"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
+                      <input 
+                        type="date" 
+                        value={reportEndDate}
+                        onChange={(e) => setReportEndDate(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 text-gray-800 dark:text-gray-100 [&::-webkit-calendar-picker-indicator]:dark:invert"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-4">
                   <button 
                     onClick={handleDownloadPDF}
-                    className="flex flex-col items-center justify-center space-y-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl border border-red-100 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                    className="w-full flex items-center justify-center space-x-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl border border-red-100 dark:border-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                   >
                     <FileText size={28} />
-                    <span className="text-sm font-bold">Download PDF</span>
-                  </button>
-                  
-                  <button 
-                    onClick={handleDownloadCSV}
-                    className="flex flex-col items-center justify-center space-y-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 p-4 rounded-xl border border-green-100 dark:border-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
-                  >
-                    <FileSpreadsheet size={28} />
-                    <span className="text-sm font-bold">Download CSV</span>
+                    <span className="text-sm font-bold">Download PDF Report</span>
                   </button>
                 </div>
               </div>
@@ -267,61 +352,6 @@ export function ReportsScreen() {
               <strong>Tip:</strong> These reports can be shared directly with your local bank branch for agricultural loans (KCC).
             </div>
           </>
-        ) : activeTab === 'finance' ? (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl border border-green-100 dark:border-green-800 shadow-sm">
-                <div className="flex items-center text-green-600 dark:text-green-400 mb-2">
-                  <ArrowUpRight size={18} className="mr-1" />
-                  <span className="text-xs font-bold uppercase tracking-wider">Income</span>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">₹{financeSummary.income.toLocaleString()}</div>
-              </div>
-              <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl border border-red-100 dark:border-red-800 shadow-sm">
-                <div className="flex items-center text-red-600 dark:text-red-400 mb-2">
-                  <ArrowDownRight size={18} className="mr-1" />
-                  <span className="text-xs font-bold uppercase tracking-wider">Expense</span>
-                </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">₹{financeSummary.expense.toLocaleString()}</div>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center">
-               <div>
-                 <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase">Recent Transactions</h3>
-               </div>
-               <button onClick={() => setShowAddFinance(true)} className="flex items-center text-xs font-bold text-primary bg-primary/10 dark:bg-primary/20 px-3 py-1.5 rounded-full">
-                 <Plus size={14} className="mr-1" /> Add Entry
-               </button>
-            </div>
-
-            <div className="space-y-3 pb-8">
-              {finances.map(f => (
-                <div key={f.id} className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${f.type === 'income' ? 'bg-green-100 text-green-600 dark:bg-green-900/30' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
-                      {f.type === 'income' ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
-                    </div>
-                    <div>
-                      <div className="font-bold text-gray-800 dark:text-gray-200">{f.category}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">{new Date(f.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
-                    </div>
-                  </div>
-                  <div className={`font-bold ${f.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-gray-800 dark:text-gray-200'}`}>
-                    {f.type === 'income' ? '+' : '-'}₹{f.amount.toLocaleString()}
-                  </div>
-                </div>
-              ))}
-              {finances.length === 0 && (
-                <div className="text-center py-10 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
-                  <div className="bg-gray-100 dark:bg-gray-700 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <IndianRupee size={24} className="text-gray-400" />
-                  </div>
-                  <p className="text-sm text-gray-500">No transactions recorded yet</p>
-                </div>
-              )}
-            </div>
-          </div>
         ) : (
           <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center space-x-2 mb-6 text-gray-800 dark:text-gray-100">
@@ -370,56 +400,7 @@ export function ReportsScreen() {
         )}
       </div>
 
-      {/* Finance Modal */}
-      <AnimatePresence>
-        {showAddFinance && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
-          >
-            <motion.div 
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl overflow-y-auto"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Record Transaction</h2>
-                <button onClick={() => setShowAddFinance(false)} className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 dark:text-gray-300">
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <form onSubmit={handleAddFinance} className="space-y-4">
-                <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-xl">
-                  <button type="button" onClick={() => setFinanceType('income')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${financeType === 'income' ? 'bg-white dark:bg-gray-800 shadow text-green-600 dark:text-green-400' : 'text-gray-500'}`}>Income</button>
-                  <button type="button" onClick={() => setFinanceType('expense')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${financeType === 'expense' ? 'bg-white dark:bg-gray-800 shadow text-red-600 dark:text-red-400' : 'text-gray-500'}`}>Expense</button>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Amount (₹) *</label>
-                  <input required value={financeAmount} onChange={e => setFinanceAmount(e.target.value)} type="number" placeholder="e.g. 5000" className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:outline-none dark:text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Category / Description *</label>
-                  <input required value={financeCategory} onChange={e => setFinanceCategory(e.target.value)} type="text" placeholder={financeType === 'income' ? "e.g. Sold Wheat, Milk Payment" : "e.g. Bought Seeds, Labor"} className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:outline-none dark:text-white" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Date *</label>
-                  <input required value={financeDate} onChange={e => setFinanceDate(e.target.value)} type="date" className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:outline-none dark:text-white [&::-webkit-calendar-picker-indicator]:dark:invert" />
-                </div>
-                <div className="pt-4">
-                  <button type="submit" className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-md active:scale-95 transition-transform">
-                    Save Transaction
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <PremiumModal isOpen={showPremiumOptions} onClose={() => setShowPremiumOptions(false)} message="Your 30-day free trial has expired. Upgrade to download detailed reports." />
     </div>
   );
 }

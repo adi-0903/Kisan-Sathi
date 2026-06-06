@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2 } from 'lucide-react';
+import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2, Crown, Clock, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { useAuth } from '../lib/AuthContext';
 import { Task } from './TasksScreen';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { fetchWeather, fetchSprayRecommendation } from '../lib/api';
+import { PremiumModal } from '../components/PremiumModal';
+import { useSubscription } from '../lib/subscription';
 
 export function HomeScreen() {
   const { t, i18n } = useTranslation();
@@ -19,6 +21,25 @@ export function HomeScreen() {
   const [weatherData, setWeatherData] = useState<any>(null);
   const [sprayRec, setSprayRec] = useState<any>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [showPremium, setShowPremium] = useState(false);
+  const [showAlertPopUp, setShowAlertPopUp] = useState(false);
+  
+  const { isExpired, daysLeft } = useSubscription();
+
+  useEffect(() => {
+    const hasSeenAlert = sessionStorage.getItem('ks_seen_alert');
+    if (!hasSeenAlert && crops.length > 0) {
+      const timer = setTimeout(() => {
+        setShowAlertPopUp(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [crops]);
+
+  const dismissAlert = () => {
+    setShowAlertPopUp(false);
+    sessionStorage.setItem('ks_seen_alert', 'true');
+  };
 
   useEffect(() => {
     fetchWeather()
@@ -62,6 +83,24 @@ export function HomeScreen() {
           >
             <h1 className="text-[10px] text-green-200/80 font-bold uppercase tracking-widest mb-0.5 flex items-center gap-1">
               <Leaf size={10}/> KisanSaathi
+              {!isExpired ? (
+                <span className="ml-2 bg-white/20 text-white rounded-full px-2 py-0.5 text-[8px] font-bold shadow-sm flex items-center">
+                  <Clock size={8} className="mr-1" /> {daysLeft} Days Free
+                </span>
+              ) : (
+                <button 
+                  onClick={() => setShowPremium(true)}
+                  className="ml-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-full px-2 py-0.5 text-[8px] font-black shadow-sm flex items-center shadow-red-500/20"
+                >
+                  <AlertTriangle size={8} className="mr-0.5" /> EXPIRED
+                </button>
+              )}
+              <button 
+                onClick={() => setShowPremium(true)}
+                className="ml-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-full px-2 py-0.5 text-[8px] font-black shadow-sm flex items-center"
+              >
+                <Crown size={8} className="mr-0.5" /> PRO
+              </button>
             </h1>
             <h2 className="text-xl font-bold text-white tracking-tight flex flex-wrap items-center gap-1">
               <span>{greetingText()},</span>
@@ -198,24 +237,33 @@ export function HomeScreen() {
           </div>
         </motion.section>
 
-        {/* Smart Alert */}
-        {crops.length > 0 && (
-          <motion.section 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+        {/* Premium Upgrade CTA */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+        >
+          <div 
+            onClick={() => setShowPremium(true)}
+            className="relative overflow-hidden bg-gray-900 rounded-3xl p-5 shadow-lg group cursor-pointer active:scale-95 transition-transform"
           >
-            <div className="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 rounded-r-2xl rounded-l-sm p-5 flex items-start space-x-4 shadow-sm">
-              <div className="text-orange-500 dark:text-orange-400 mt-0.5 animate-pulse">
-                <AlertTriangle size={24} />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity" />
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-1.5 mb-1">
+                  <Crown size={14} className="text-orange-400" />
+                  <h4 className="text-sm font-black tracking-widest text-orange-400 uppercase">KisanSaathi Pro</h4>
+                </div>
+                <p className="text-white font-bold text-lg">Unlock AI Scans, Reports & Kisan GPT ✨</p>
               </div>
-              <div className="flex-1">
-                <h4 className="text-base font-bold text-orange-800 dark:text-orange-300">{t("smart_alerts")}</h4>
-                <p className="text-sm text-orange-700 dark:text-orange-400 mt-1 leading-relaxed">Consider checking field moisture levels for {crops[0]?.name || 'your crops'} soon based on upcoming weather forecast.</p>
+              <div className="bg-white/10 text-white p-2.5 rounded-full backdrop-blur-sm shadow-sm group-hover:bg-white group-hover:text-gray-900 transition-colors">
+                <ChevronRight size={20} />
               </div>
             </div>
-          </motion.section>
-        )}
+          </div>
+        </motion.section>
+
+        {/* Smart Alert Removed from inline and moved to pop-up */}
 
         {/* Action shortcuts */}
         <motion.section 
@@ -294,6 +342,43 @@ export function HomeScreen() {
           </div>
         </motion.section>
       </div>
+
+      <AnimatePresence>
+        {showAlertPopUp && crops.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="fixed top-20 left-4 right-4 z-50 shadow-2xl"
+          >
+            <div className="bg-orange-50 dark:bg-orange-900/40 border border-orange-200 dark:border-orange-500/30 rounded-2xl p-5 flex items-start space-x-4 shadow-xl relative backdrop-blur-md">
+              <button 
+                onClick={dismissAlert}
+                className="absolute top-3 right-3 text-orange-400 hover:text-orange-600 dark:text-orange-300 dark:hover:text-orange-100 transition-colors bg-orange-100/50 dark:bg-orange-900/50 rounded-full p-1"
+              >
+                <X size={16} />
+              </button>
+              <div className="text-orange-500 dark:text-orange-400 mt-0.5 shadow-orange-500/20">
+                <AlertTriangle size={24} />
+              </div>
+              <div className="flex-1 pr-6">
+                <h4 className="text-base font-bold text-orange-800 dark:text-orange-300">{t("smart_alerts")}</h4>
+                <p className="text-sm text-orange-700 dark:text-orange-200 mt-1 leading-relaxed">
+                  Consider checking field moisture levels for <span className="font-bold">{crops[0]?.name || 'your crops'}</span> soon based on upcoming weather forecast.
+                </p>
+                <div className="mt-3">
+                  <button onClick={dismissAlert} className="text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-full shadow-sm active:scale-95 transition-all">
+                    Got it
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <PremiumModal isOpen={showPremium} onClose={() => setShowPremium(false)} />
     </div>
   );
 }

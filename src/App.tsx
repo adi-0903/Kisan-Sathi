@@ -19,6 +19,7 @@ import { CropLogScreen } from "./screens/CropLogScreen";
 import { DiseaseDetectorScreen } from "./screens/DiseaseDetectorScreen";
 import { WeatherScreen } from "./screens/WeatherScreen";
 import { ReportsScreen } from "./screens/ReportsScreen";
+import { FinanceScreen } from "./screens/FinanceScreen";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { ThemeProvider } from "./lib/ThemeContext";
 import { LoginScreen } from "./screens/LoginScreen";
@@ -40,7 +41,7 @@ function BottomNav() {
     { path: "/", icon: Home, label: t("home") },
     { path: "/crops", icon: Sprout, label: t("crops") },
     { path: "/dairy", icon: Tractor, label: t("dairy") },
-    { path: "/market", icon: IndianRupee, label: t("market") },
+    { path: "/finance", icon: IndianRupee, label: t("finance", "Finance") },
     { path: "/profile", icon: User, label: t("profile") }
   ];
 
@@ -161,6 +162,7 @@ function InnerApp() {
           <Route path="/disease" element={<PageWrapper><DiseaseDetectorScreen /></PageWrapper>} />
           <Route path="/dairy" element={<PageWrapper><DairyScreen /></PageWrapper>} />
           <Route path="/market" element={<PageWrapper><MarketScreen /></PageWrapper>} />
+          <Route path="/finance" element={<PageWrapper><FinanceScreen /></PageWrapper>} />
           <Route path="/ai" element={<PageWrapper><AIScreen /></PageWrapper>} />
           <Route path="/profile" element={<PageWrapper><ProfileScreen /></PageWrapper>} />
           <Route path="/weather" element={<PageWrapper><WeatherScreen /></PageWrapper>} />

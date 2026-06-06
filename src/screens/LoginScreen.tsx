@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../lib/AuthContext';
-import { Tractor, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { BrandLogo } from '../components/BrandLogo';
 
 export function LoginScreen() {
   const { t } = useTranslation();
@@ -27,8 +28,8 @@ export function LoginScreen() {
 
   return (
     <div className="flex flex-col h-screen p-6 max-w-md mx-auto items-center justify-center bg-background">
-      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">
-        <Tractor size={32} />
+      <div className="mb-6">
+        <BrandLogo size={80} />
       </div>
       <h1 className="text-3xl font-bold text-gray-800 mb-2">{t("welcome_back")}</h1>
       <p className="text-gray-500 mb-8 text-center">{t("login_to_continue")}</p>
