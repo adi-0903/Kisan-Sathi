@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2, Crown, Clock, X } from 'lucide-react';
+import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2, Crown, Clock, X, Landmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { useAuth } from '../lib/AuthContext';
@@ -284,6 +284,13 @@ export function HomeScreen() {
                <ChevronRight size={24} />
             </div>
             <span className="text-base font-bold text-gray-800 dark:text-gray-200">Live Mandi<br/>Rates</span>
+          </button>
+
+          <button onClick={() => navigate('/schemes')} className="bg-white dark:bg-gray-800 border-2 border-blue-500/20 hover:border-blue-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
+            <div className="bg-blue-500/10 text-blue-600 dark:text-blue-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <Landmark size={24} />
+            </div>
+            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Govt.<br/>Schemes</span>
           </button>
           
           <button onClick={() => navigate('/inventory')} className="bg-white dark:bg-gray-800 border-2 border-emerald-500/20 hover:border-emerald-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
