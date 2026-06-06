@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { jsPDF } from 'jspdf';
-import { ChevronLeft, Download, FileText, FileSpreadsheet, TrendingUp } from 'lucide-react';
+import { ChevronLeft, Download, FileText, FileSpreadsheet, TrendingUp, IndianRupee, Plus, ArrowUpRight, ArrowDownRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, AreaChart, Area } from 'recharts';
+import { motion, AnimatePresence } from 'motion/react';
 
 export function ReportsScreen() {
   const { t } = useTranslation();
@@ -20,11 +21,47 @@ export function ReportsScreen() {
   })).sort((a,b) => a.year.localeCompare(b.year)) || [];
 
   const [tasks] = useSyncState<any[]>('ks_tasks', []);
+  const [finances, setFinances] = useSyncState<any[]>('ks_finances', []);
   const [reportType, setReportType] = useState('monthly');
-  const [activeTab, setActiveTab] = useState<'exports' | 'trends'>('exports');
+  const [activeTab, setActiveTab] = useState<'exports' | 'finance' | 'trends'>('exports');
+
+  // Finance modal state
+  const [showAddFinance, setShowAddFinance] = useState(false);
+  const [financeType, setFinanceType] = useState<'income' | 'expense'>('expense');
+  const [financeAmount, setFinanceAmount] = useState('');
+  const [financeCategory, setFinanceCategory] = useState('');
+  const [financeDate, setFinanceDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const handleAddFinance = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!financeAmount || !financeCategory) return;
+    const newEntry = {
+      id: Date.now(),
+      type: financeType,
+      amount: parseFloat(financeAmount),
+      category: financeCategory,
+      date: financeDate
+    };
+    setFinances([newEntry, ...finances].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    setShowAddFinance(false);
+    setFinanceAmount('');
+    setFinanceCategory('');
+  };
+
+  const financeSummary = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    finances.forEach(f => {
+      if (f.type === 'income') income += f.amount;
+      else expense += f.amount;
+    });
+    return { income, expense, balance: income - expense };
+  }, [finances]);
 
   const generateData = () => {
-    const expenses: {date: string, category: string, amount: number}[] = [];
+    const expenses = finances.filter(f => f.type === 'expense').map(f => ({
+      date: f.date, category: f.category, amount: f.amount
+    }));
     
     // Convert tasks into activity
     const activity = (tasks || []).map(task => ({
@@ -33,12 +70,24 @@ export function ReportsScreen() {
       status: task.completed ? 'Completed' : 'Pending'
     }));
 
-    // Mock monthly milk
-    const milkProduction = cattle?.map(c => ({
-      tag: c.id,
-      breed: c.breed,
-      monthlyYield: parseFloat(c.yield) ? parseFloat(c.yield) * 30 + ' L' : '0 L'
-    })) || [];
+    const milkLogs = JSON.parse(localStorage.getItem('ks_milk_logs') || '[]');
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
+    const milkProduction = cattle?.map(c => {
+      const cowLogs = milkLogs.filter((l: any) => {
+        if (l.cattleId !== c.id) return false;
+        const d = new Date(l.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
+      const monthlyTotal = cowLogs.reduce((acc: number, curr: any) => acc + curr.amount, 0);
+
+      return {
+        tag: c.id,
+        breed: c.breed,
+        monthlyYield: `${monthlyTotal.toFixed(1)} L`
+      };
+    }) || [];
 
     return { expenses, activity, milkProduction };
   };
@@ -151,16 +200,22 @@ export function ReportsScreen() {
         <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">Farm Reports</h1>
       </header>
 
-      <div className="flex px-4 pt-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 space-x-6">
+      <div className="flex px-4 pt-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 space-x-6 overflow-x-auto no-scrollbar">
         <button 
           onClick={() => setActiveTab('exports')}
-          className={`pb-3 text-sm font-bold border-b-2 transition-colors duration-200 ${activeTab === 'exports' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+          className={`pb-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors duration-200 ${activeTab === 'exports' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
         >
-          Export Statements
+          Export
+        </button>
+        <button 
+          onClick={() => setActiveTab('finance')}
+          className={`pb-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors duration-200 ${activeTab === 'finance' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+        >
+          Financials
         </button>
         <button 
           onClick={() => setActiveTab('trends')}
-          className={`pb-3 text-sm font-bold border-b-2 transition-colors duration-200 ${activeTab === 'trends' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+          className={`pb-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors duration-200 ${activeTab === 'trends' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
         >
           Yield Trends
         </button>
@@ -212,6 +267,61 @@ export function ReportsScreen() {
               <strong>Tip:</strong> These reports can be shared directly with your local bank branch for agricultural loans (KCC).
             </div>
           </>
+        ) : activeTab === 'finance' ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl border border-green-100 dark:border-green-800 shadow-sm">
+                <div className="flex items-center text-green-600 dark:text-green-400 mb-2">
+                  <ArrowUpRight size={18} className="mr-1" />
+                  <span className="text-xs font-bold uppercase tracking-wider">Income</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">₹{financeSummary.income.toLocaleString()}</div>
+              </div>
+              <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-2xl border border-red-100 dark:border-red-800 shadow-sm">
+                <div className="flex items-center text-red-600 dark:text-red-400 mb-2">
+                  <ArrowDownRight size={18} className="mr-1" />
+                  <span className="text-xs font-bold uppercase tracking-wider">Expense</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">₹{financeSummary.expense.toLocaleString()}</div>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center">
+               <div>
+                 <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase">Recent Transactions</h3>
+               </div>
+               <button onClick={() => setShowAddFinance(true)} className="flex items-center text-xs font-bold text-primary bg-primary/10 dark:bg-primary/20 px-3 py-1.5 rounded-full">
+                 <Plus size={14} className="mr-1" /> Add Entry
+               </button>
+            </div>
+
+            <div className="space-y-3 pb-8">
+              {finances.map(f => (
+                <div key={f.id} className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${f.type === 'income' ? 'bg-green-100 text-green-600 dark:bg-green-900/30' : 'bg-red-100 text-red-600 dark:bg-red-900/30'}`}>
+                      {f.type === 'income' ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
+                    </div>
+                    <div>
+                      <div className="font-bold text-gray-800 dark:text-gray-200">{f.category}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{new Date(f.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                    </div>
+                  </div>
+                  <div className={`font-bold ${f.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-gray-800 dark:text-gray-200'}`}>
+                    {f.type === 'income' ? '+' : '-'}₹{f.amount.toLocaleString()}
+                  </div>
+                </div>
+              ))}
+              {finances.length === 0 && (
+                <div className="text-center py-10 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                  <div className="bg-gray-100 dark:bg-gray-700 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <IndianRupee size={24} className="text-gray-400" />
+                  </div>
+                  <p className="text-sm text-gray-500">No transactions recorded yet</p>
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
           <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
             <div className="flex items-center space-x-2 mb-6 text-gray-800 dark:text-gray-100">
@@ -259,6 +369,57 @@ export function ReportsScreen() {
           </div>
         )}
       </div>
+
+      {/* Finance Modal */}
+      <AnimatePresence>
+        {showAddFinance && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+          >
+            <motion.div 
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl overflow-y-auto"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Record Transaction</h2>
+                <button onClick={() => setShowAddFinance(false)} className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 dark:text-gray-300">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <form onSubmit={handleAddFinance} className="space-y-4">
+                <div className="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-xl">
+                  <button type="button" onClick={() => setFinanceType('income')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${financeType === 'income' ? 'bg-white dark:bg-gray-800 shadow text-green-600 dark:text-green-400' : 'text-gray-500'}`}>Income</button>
+                  <button type="button" onClick={() => setFinanceType('expense')} className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${financeType === 'expense' ? 'bg-white dark:bg-gray-800 shadow text-red-600 dark:text-red-400' : 'text-gray-500'}`}>Expense</button>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Amount (₹) *</label>
+                  <input required value={financeAmount} onChange={e => setFinanceAmount(e.target.value)} type="number" placeholder="e.g. 5000" className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:outline-none dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Category / Description *</label>
+                  <input required value={financeCategory} onChange={e => setFinanceCategory(e.target.value)} type="text" placeholder={financeType === 'income' ? "e.g. Sold Wheat, Milk Payment" : "e.g. Bought Seeds, Labor"} className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:outline-none dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Date *</label>
+                  <input required value={financeDate} onChange={e => setFinanceDate(e.target.value)} type="date" className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:outline-none dark:text-white [&::-webkit-calendar-picker-indicator]:dark:invert" />
+                </div>
+                <div className="pt-4">
+                  <button type="submit" className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-md active:scale-95 transition-transform">
+                    Save Transaction
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

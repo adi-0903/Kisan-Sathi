@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Plus, X, Trash2 } from 'lucide-react';
+import { ChevronLeft, Plus, X, Trash2, Sprout } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { motion, AnimatePresence } from 'motion/react';
@@ -14,9 +14,11 @@ export function CropLogScreen() {
   const [activities, setActivities] = useSyncState<any[]>('ks_activities', []);
   
   const [showAdd, setShowAdd] = useState(false);
+  const [showHarvest, setShowHarvest] = useState(false);
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
+  const [yieldAmount, setYieldAmount] = useState(crop?.yield || '');
 
   const cropActivities = activities.filter(a => a.cropId === Number(id)).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -64,6 +66,29 @@ export function CropLogScreen() {
     setDescription('');
   };
 
+  const handleHarvest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!yieldAmount) return;
+
+    // Update crop
+    const updatedCrops = crops.map(c => 
+      c.id === crop.id ? { ...c, yield: yieldAmount } : c
+    );
+    setCrops(updatedCrops);
+
+    // Add activity
+    const newActivity = {
+      id: Date.now(),
+      cropId: crop.id,
+      title: 'Harvested',
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      description: `Yield recorded: ${yieldAmount} t/ha`
+    };
+    setActivities([newActivity, ...activities]);
+
+    setShowHarvest(false);
+  };
+
   return (
     <div className="p-4 bg-gray-50 dark:bg-[#121212] min-h-screen">
       <header className="flex justify-between items-center mb-6">
@@ -90,7 +115,7 @@ export function CropLogScreen() {
           </button>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-600">
             <div className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-1">Area</div>
             <div className="text-sm font-bold text-gray-800 dark:text-gray-200">{crop.area}</div>
@@ -99,6 +124,16 @@ export function CropLogScreen() {
             <div className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-1">Sown Date</div>
             <div className="text-sm font-bold text-gray-800 dark:text-gray-200">{crop.sown}</div>
           </div>
+        </div>
+
+        <div className="flex justify-between items-center bg-green-50 dark:bg-green-900/20 p-3 rounded-xl border border-green-100 dark:border-green-800/30">
+          <div>
+            <div className="text-[10px] text-green-600 dark:text-green-400 font-bold uppercase tracking-wider mb-1">Recorded Yield</div>
+            <div className="text-sm font-bold text-green-800 dark:text-green-300">{crop.yield ? `${crop.yield} t/ha` : 'Not recorded'}</div>
+          </div>
+          <button onClick={() => setShowHarvest(true)} className="flex items-center text-xs font-bold text-green-700 bg-green-100 dark:bg-green-800 border border-green-200 dark:border-green-700 px-3 py-2 rounded-lg">
+            <Sprout size={14} className="mr-1" /> Log Harvest
+          </button>
         </div>
       </div>
 
@@ -169,7 +204,44 @@ export function CropLogScreen() {
             </motion.div>
           </motion.div>
         )}
+
+        {showHarvest && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+          >
+            <motion.div 
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white dark:bg-gray-800 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl h-[50vh] sm:h-auto overflow-y-auto"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Log Harvest Yield</h2>
+                <button onClick={() => setShowHarvest(false)} className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 dark:text-gray-300">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <form onSubmit={handleHarvest} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Total Yield (t/ha) *</label>
+                  <input required value={yieldAmount} onChange={e => setYieldAmount(e.target.value)} type="number" step="0.1" placeholder="e.g. 4.5" className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary/50 focus:outline-none dark:text-white" />
+                </div>
+                <div className="pt-4">
+                  <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-md active:scale-95 transition-transform">
+                    Save Yield Data
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
 }
+
