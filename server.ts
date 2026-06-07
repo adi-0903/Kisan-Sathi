@@ -35,6 +35,9 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Trust proxy for rate limiting behind Google Cloud Run / nginx
+  app.set("trust proxy", 1);
+
   // 1. Security Headers (Helmet)
   app.use(helmet({
     contentSecurityPolicy: {
@@ -61,6 +64,11 @@ async function startServer() {
     max: 30, // 30 req/min per IP
     standardHeaders: true,
     legacyHeaders: false,
+    validate: {
+      trustProxy: false,
+      xForwardedForHeader: false,
+      forwardedHeader: false,
+    },
     handler: (req, res) => {
       res.status(429).json(createErrorResponse("Too many requests. Please wait.", "TOO_MANY_REQUESTS"));
     }
@@ -71,6 +79,11 @@ async function startServer() {
     max: 60, // 60 req/min per IP
     standardHeaders: true,
     legacyHeaders: false,
+    validate: {
+      trustProxy: false,
+      xForwardedForHeader: false,
+      forwardedHeader: false,
+    },
     handler: (req, res) => {
       res.status(429).json(createErrorResponse("Too many requests. Please wait.", "TOO_MANY_REQUESTS"));
     }
