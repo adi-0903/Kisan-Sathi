@@ -10,9 +10,20 @@ export type User = {
   landSize?: string;
 };
 
+export type PendingVerification = {
+  step: 'PHONE' | 'OTP' | 'DETAILS';
+  name: string;
+  phone: string;
+  village?: string;
+  state?: string;
+  landSize?: string;
+} | null;
+
 type AuthContextType = {
   user: User | null;
   loading: boolean;
+  pendingVerification: PendingVerification;
+  setPendingVerification: (data: PendingVerification) => void;
   login: (phone: string, pin: string) => Promise<boolean>;
   register: (data: User & { pin: string }) => Promise<void>;
   logout: () => void;
@@ -23,6 +34,15 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingVerificationState, setPendingVerificationState] = useState<PendingVerification>(() => {
+    const pendingJson = sessionStorage.getItem('ks_pending_verification');
+    if (pendingJson) {
+      try {
+        return JSON.parse(pendingJson);
+      } catch (e) {}
+    }
+    return null;
+  });
 
   useEffect(() => {
     get('ks_user_session').then(session => {
@@ -30,6 +50,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
   }, []);
+
+  const setPendingVerification = (data: PendingVerification) => {
+    setPendingVerificationState(data);
+    if (data) {
+      sessionStorage.setItem('ks_pending_verification', JSON.stringify(data));
+    } else {
+      sessionStorage.removeItem('ks_pending_verification');
+    }
+  };
 
   const login = async (phone: string, pin: string) => {
     const users = await get('ks_users') || {};
@@ -50,15 +79,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { pin: _, ...userData } = data;
     setUser(userData);
     await set('ks_user_session', userData);
+    setPendingVerification(null);
   };
 
   const logout = async () => {
     setUser(null);
+    setPendingVerification(null);
     await set('ks_user_session', null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      pendingVerification: pendingVerificationState, 
+      setPendingVerification, 
+      login, 
+      register, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, Globe, Moon, Sun, Bell, Lock, Key } from 'lucide-react';
+import { ChevronLeft, Globe, Moon, Sun, Bell, Lock, Key, Trash2 } from 'lucide-react';
 import { useTheme } from '../lib/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../lib/useNotifications';
+import { clearAllData } from '../lib/store';
 
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -13,6 +14,7 @@ export function SettingsScreen() {
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showConfirmClear, setShowConfirmClear] = useState(false);
 
   const changeLang = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -147,6 +149,46 @@ export function SettingsScreen() {
                   </button>
                 </div>
               </form>
+            )}
+          </div>
+        </section>
+
+        {/* Data & Privacy */}
+        <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-red-100 dark:border-red-900 overflow-hidden mt-6">
+          <div className="px-4 py-3 border-b border-red-50 dark:border-red-900/30 flex items-center space-x-2 bg-red-50/50 dark:bg-red-900/20">
+            <Trash2 size={18} className="text-red-500" />
+            <h3 className="text-sm font-bold text-red-700 dark:text-red-400">Danger Zone (Clear Local Data)</h3>
+          </div>
+          <div className="p-4">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+              All your app data (crops, dairy, finance) is stored locally on this device. We do not use a cloud backend database by default for privacy. Clicking below will permanently delete all your app data from this browser.
+            </p>
+            {!showConfirmClear ? (
+              <button 
+                onClick={() => setShowConfirmClear(true)}
+                className="w-full flex items-center justify-center space-x-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 py-3 rounded-xl transition-colors font-bold text-sm border border-red-200 dark:border-red-800"
+              >
+                <Trash2 size={18} />
+                <span>Reset & Clear All Data</span>
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-red-600 dark:text-red-400">Are you absolutely sure? This cannot be undone.</p>
+                <div className="flex space-x-3">
+                  <button 
+                    onClick={() => setShowConfirmClear(false)}
+                    className="flex-1 py-2 px-4 rounded-xl text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={clearAllData}
+                    className="flex-1 py-2 px-4 rounded-xl text-sm font-medium bg-red-600 text-white hover:bg-red-700"
+                  >
+                    Yes, Delete All
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </section>

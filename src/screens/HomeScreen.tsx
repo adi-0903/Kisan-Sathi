@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2, Crown, Clock, X, Landmark } from 'lucide-react';
+import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2, Crown, Clock, X, Landmark, ShoppingCart, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { useAuth } from '../lib/AuthContext';
@@ -209,34 +209,6 @@ export function HomeScreen() {
           </div>
         </motion.section>
 
-        {/* Summary Cards */}
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <div className="grid grid-cols-2 gap-3">
-            <div 
-              onClick={() => navigate('/crops')}
-              className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col justify-center items-center text-center cursor-pointer hover:shadow-lg transition-shadow active:scale-95">
-              <div className="w-14 h-14 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light rounded-full flex items-center justify-center mb-3">
-                <Sprout size={28} />
-              </div>
-              <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">{crops.length}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t("active_crops")}</div>
-            </div>
-            <div 
-              onClick={() => navigate('/dairy')}
-              className="bg-white dark:bg-gray-800 p-5 rounded-3xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col justify-center items-center text-center cursor-pointer hover:shadow-lg transition-shadow active:scale-95">
-              <div className="bg-secondary/10 dark:bg-secondary/20 text-secondary dark:text-secondary-light w-14 h-14 rounded-full flex items-center justify-center mb-3">
-                <Thermometer size={28} />
-              </div>
-              <div className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-1">{cattle.length}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t("cattle_count")}</div>
-            </div>
-          </div>
-        </motion.section>
-
         {/* Premium Upgrade CTA */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
@@ -298,6 +270,20 @@ export function HomeScreen() {
                <Package size={24} />
             </div>
             <span className="text-base font-bold text-gray-800 dark:text-gray-200">{t('inventory')}</span>
+          </button>
+
+          <button onClick={() => navigate('/logistics')} className="bg-white dark:bg-gray-800 border-2 border-indigo-500/20 hover:border-indigo-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
+            <div className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <Truck size={24} />
+            </div>
+            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Book<br/>Logistics</span>
+          </button>
+
+          <button onClick={() => navigate('/shop')} className="bg-white dark:bg-gray-800 border-2 border-orange-500/20 hover:border-orange-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
+            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <ShoppingCart size={24} />
+            </div>
+            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Agri<br/>Shop</span>
           </button>
           
           <button onClick={() => navigate('/soil-health')} className="bg-white dark:bg-gray-800 border-2 border-amber-600/20 hover:border-amber-600/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
