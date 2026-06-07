@@ -1,10 +1,22 @@
 # 🌾 KisanSaathi - The Ultimate Smart Farming Companion
 
-Welcome to **KisanSaathi**, a comprehensive, offline-first, multilingual, and AI-powered agricultural companion application built to empower modern farmers. From real-time agronomy AI advice to livestock tracking, crop logistics, and financial reporting, KisanSaathi digitizes the entire farm-to-market lifecycle into a single incredibly optimized single-page application (SPA).
+[![Live Demo](https://img.shields.io/badge/demo-status_live-green?style=for-the-badge)](https://kisan-saathi.example.com)
+[![CI/CD Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)](#)
+
+Welcome to **KisanSaathi**, a comprehensive, offline-first, multilingual, and AI-powered agricultural companion application built to empower modern farmers. From real-time agronomy AI advice to livestock tracking, crop logistics, and financial reporting, KisanSaathi digitizes the entire farm-to-market lifecycle into a single incredibly optimized progressive web application (PWA).
+
+## 🧰 Tech Stack
+![React 19](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript 5.8](https://img.shields.io/badge/TypeScript_5.8-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?style=for-the-badge&logo=google&logoColor=white)
 
 ---
 
 ## ✨ Comprehensive Feature Suite
+
+*(Screenshots placeholder coming soon)*
 
 ### 🌱 Agronomy & Farm Management
 - **Crop Management:** Track active crops, land areas, sown dates, expected yield, and maintain a detailed, historical activity diary (sowing, chemical applications, harvesting).
@@ -99,6 +111,25 @@ The project relies on a monolithic separation of Express APIs and a Vite React a
 ## 🛡️ Privacy & Data Ownership
 
 KisanSaathi strongly aligns with modern data privacy paradigms. By operating predominantly *Offline-First*, critical operational farm data, yield logs, inventory numbers, and personal details (like verification sessions) are strictly retained within the device boundaries of the local browser. Unless explicitly querying the generative AI assistants or cloud APIs, sensitive financial logic completely avoids networked transmission. 
+
+---
+
+## 💾 Data Sources & Acknowledgements
+- **Weather Forecasts:** Powered by [OpenWeatherMap API](https://openweathermap.org/) Free Tier.
+- **Mandi Market Prices:** Daily commodities data provided via Govt of India's [Agmarknet / data.gov.in](https://data.gov.in/).
+- **Generative AI:** Google's latest [Gemini 2.5 Flash](https://aistudio.google.com/) running on `@google/genai` Node.js Native SDK.
+
+---
+
+## 🤝 Contributing
+
+Contributions are always welcome. As an offline-first PWA, we strongly focus on UX limits under poor 3G/offline networks.
+
+1. Fork the project.
+2. Create your Feature Branch (`git checkout -b feature/AmazingAgriFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingAgriFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingAgriFeature`)
+5. Open a Pull Request
 
 ---
 

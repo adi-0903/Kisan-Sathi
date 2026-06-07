@@ -26,7 +26,7 @@ export function MarketScreen() {
       <section>
         <h2 className="text-sm font-bold text-gray-500 tracking-wider uppercase mb-3">Live Mandi Prices (₹/Qtl)</h2>
         <div className="space-y-3">
-          {prices.map((item, idx) => (
+          {Array.isArray(prices) && prices.length > 0 ? prices.map((item, idx) => (
             <div key={idx} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-center">
               <div>
                 <h3 className="font-bold text-gray-800 text-lg">{item.crop}</h3>
@@ -43,14 +43,18 @@ export function MarketScreen() {
                 </div>
               </div>
             </div>
-          ))}
+          )) : (
+             <div className="text-sm text-gray-500 py-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center">
+               Loading or Live Prices failed to load...
+             </div>
+          )}
         </div>
       </section>
 
       <section className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-sm font-bold text-gray-500 tracking-wider uppercase mb-4">Season Expenses</h2>
         <div className="h-48 w-full">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <BarChart data={expenseData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />

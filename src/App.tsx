@@ -32,6 +32,9 @@ import { SoilHealthScreen } from "./screens/SoilHealthScreen";
 import { SchemesScreen } from "./screens/SchemesScreen";
 import { ShopScreen } from "./screens/ShopScreen";
 import { LogisticsScreen } from "./screens/LogisticsScreen";
+import { MachineryScreen } from "./screens/MachineryScreen";
+import { LaborScreen } from "./screens/LaborScreen";
+import { D2CScreen } from "./screens/D2CScreen";
 
 import { SplashScreen } from './screens/SplashScreen';
 
@@ -177,6 +180,9 @@ function InnerApp() {
           <Route path="/schemes" element={<PageWrapper><SchemesScreen /></PageWrapper>} />
           <Route path="/shop" element={<PageWrapper><ShopScreen /></PageWrapper>} />
           <Route path="/logistics" element={<PageWrapper><LogisticsScreen /></PageWrapper>} />
+          <Route path="/machinery" element={<PageWrapper><MachineryScreen /></PageWrapper>} />
+          <Route path="/labor" element={<PageWrapper><LaborScreen /></PageWrapper>} />
+          <Route path="/d2c" element={<PageWrapper><D2CScreen /></PageWrapper>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </AnimatePresence>

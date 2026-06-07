@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2, Crown, Clock, X, Landmark, ShoppingCart, Truck } from 'lucide-react';
+import { Cloud, Droplets, Thermometer, ChevronRight, AlertTriangle, ListTodo, Sprout, Plus, Leaf, Sun, CloudRain, Wind, Loader2, Package, TestTube2, Crown, Clock, X, Landmark, ShoppingCart, Truck, HardHat, Store, Tractor } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSyncState } from '../lib/store';
 import { useAuth } from '../lib/AuthContext';
@@ -277,6 +277,27 @@ export function HomeScreen() {
                <Truck size={24} />
             </div>
             <span className="text-base font-bold text-gray-800 dark:text-gray-200">Book<br/>Logistics</span>
+          </button>
+
+          <button onClick={() => navigate('/machinery')} className="bg-white dark:bg-gray-800 border-2 border-yellow-500/20 hover:border-yellow-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
+            <div className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <Tractor size={24} />
+            </div>
+            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Rent<br/>Machinery</span>
+          </button>
+
+          <button onClick={() => navigate('/labor')} className="bg-white dark:bg-gray-800 border-2 border-teal-500/20 hover:border-teal-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
+            <div className="bg-teal-500/10 text-teal-600 dark:text-teal-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <HardHat size={24} />
+            </div>
+            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Labor &<br/>Wages</span>
+          </button>
+
+          <button onClick={() => navigate('/d2c')} className="bg-white dark:bg-gray-800 border-2 border-emerald-500/20 hover:border-emerald-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
+            <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <Store size={24} />
+            </div>
+            <span className="text-base font-bold text-gray-800 dark:text-gray-200">D2C<br/>Storefront</span>
           </button>
 
           <button onClick={() => navigate('/shop')} className="bg-white dark:bg-gray-800 border-2 border-orange-500/20 hover:border-orange-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
