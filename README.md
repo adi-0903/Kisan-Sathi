@@ -65,17 +65,24 @@ Welcome to **KisanSaathi**, a comprehensive, offline-first, multilingual, and AI
 
 ### Prerequisites
 
-Ensure you have Node.js (v18 or higher) installed in your environment.
+Ensure you have Node.js (v20 or higher) installed in your environment, or Docker if you prefer containerized deployment.
 
 You need to provide your own API keys for the services to function properly. See `.env.example` in the root folder. Create a local `.env` file and add the following keys:
 
 ```env
-OPENWEATHER_API_KEY=your_openweathermap_api_key_here
+# Required for AI Features (Disease detection, chat advisory)
 GEMINI_API_KEY=your_google_gemini_api_key_here
+
+# Optional: Fetches local weather forecasts and spray recommendations
+OPENWEATHER_API_KEY=your_openweathermap_api_key_here
+
+# Optional: Real-time Mandi market prices in India
+DATAGOVIN_API_KEY=your_datagov_api_key_here
 ```
 
 ### Installation
 
+#### Option A: Local Node.js Setup
 1. **Install Dependencies**
    ```bash
    npm install
@@ -95,7 +102,24 @@ GEMINI_API_KEY=your_google_gemini_api_key_here
    npm start
    ```
 
+#### Option B: Docker Container Deployment
+KisanSaathi includes a complete multi-stage Dockerfile for optimized production usage.
+
+1. **Build the Docker Image**
+   ```bash
+   docker build -t kisan-saathi .
+   ```
+
+2. **Run the Container**
+   ```bash
+   docker run -p 3000:3000 --env-file .env kisan-saathi
+   ```
+
 ---
+
+## 🛠 CI/CD
+This project includes automated workflows configured for GitHub Actions (`.github/workflows/ci.yml`). 
+It automatically checks type integrity, lints code, and ensures the build succeeds on every Pull Request or push to `main`.
 
 ## 🏗️ Project Architecture Breakdown
 
