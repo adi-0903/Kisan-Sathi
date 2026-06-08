@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
-import { Home, Sprout, Tractor, IndianRupee, MessageSquare, User, Droplets, CloudOff, Cloud } from "lucide-react";
+import { Home, Sprout, Tractor, IndianRupee, MessageSquare, User, Droplets, CloudOff, Cloud, Store, Users, Calendar } from "lucide-react";
 import './lib/i18n';
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
@@ -35,15 +35,27 @@ import { LogisticsScreen } from "./screens/LogisticsScreen";
 import { MachineryScreen } from "./screens/MachineryScreen";
 import { LaborScreen } from "./screens/LaborScreen";
 import { D2CScreen } from "./screens/D2CScreen";
+import { ConsumerHomeScreen } from "./screens/ConsumerHomeScreen";
 
 import { SplashScreen } from './screens/SplashScreen';
+
+import { FarmerDirectoryScreen } from "./screens/FarmerDirectoryScreen";
+import { SubscriptionsScreen } from "./screens/SubscriptionsScreen";
 
 function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
-  const navItems = [
+  const isConsumer = user?.role === 'consumer';
+
+  const navItems = isConsumer ? [
+    { path: "/", icon: Store, label: "Market" },
+    { path: "/directory", icon: Users, label: "Farmers" },
+    { path: "/subscriptions", icon: Calendar, label: "Subs" },
+    { path: "/profile", icon: User, label: t("profile") }
+  ] : [
     { path: "/", icon: Home, label: t("home") },
     { path: "/crops", icon: Sprout, label: t("crops") },
     { path: "/dairy", icon: Tractor, label: t("dairy") },
@@ -51,7 +63,9 @@ function BottomNav() {
     { path: "/profile", icon: User, label: t("profile") }
   ];
 
-  if (['/ai', '/disease', '/weather', '/tasks', '/inventory', '/soil-health', '/schemes', '/shop', '/logistics'].includes(location.pathname)) return null;
+  // Only show nav on main tabs and their subpages
+  const showNav = navItems.some(item => location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path)));
+  if (!showNav) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 safe-area-bottom pb-2 z-50">
@@ -86,13 +100,19 @@ function BottomNav() {
 }
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const { user } = useAuth();
+  const isConsumer = user?.role === 'consumer';
+  const navPaths = isConsumer ? ['/', '/directory', '/subscriptions', '/profile'] : ['/', '/crops', '/dairy', '/finance', '/profile'];
+  const showNav = navPaths.some(path => location.pathname === path || (path !== '/' && location.pathname.startsWith(`${path}/`)));
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.2 }}
-      className="pb-32 max-w-md mx-auto bg-background dark:bg-[#121212] min-h-screen relative shadow-2xl shadow-gray-200/50 dark:shadow-gray-900/50"
+      className={`${showNav ? 'pb-32' : 'pb-0'} max-w-md mx-auto bg-background dark:bg-[#121212] min-h-screen relative shadow-2xl shadow-gray-200/50 dark:shadow-gray-900/50`}
     >
       {children}
     </motion.div>
@@ -102,16 +122,30 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 function FloatingAIFab() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   if (['/ai', '/login', '/register'].includes(location.pathname)) return null;
+
+  const isConsumer = user?.role === 'consumer';
+  const navPaths = isConsumer ? ['/', '/directory', '/subscriptions', '/profile'] : ['/', '/crops', '/dairy', '/finance', '/profile'];
+  const showNav = navPaths.some(path => location.pathname === path || (path !== '/' && location.pathname.startsWith(`${path}/`)));
+
   return (
     <button
       onClick={() => navigate('/ai')}
-      className="fixed bottom-20 right-4 bg-accent text-white p-4 rounded-full shadow-lg z-50 flex items-center justify-center hover:scale-105 transition-transform"
+      className={`fixed ${showNav ? 'bottom-22' : 'bottom-6'} right-4 bg-accent text-white p-4 rounded-full shadow-lg z-50 flex items-center justify-center hover:scale-105 transition-transform`}
     >
       <MessageSquare size={24} />
       <span className="sr-only">Ask AI</span>
     </button>
   );
+}
+
+function ProtectedFarmerRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  if (user?.role === 'consumer') {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
 }
 
 function InnerApp() {
@@ -162,27 +196,29 @@ function InnerApp() {
       )}
       <AnimatePresence mode="wait">
         <Routes location={location}>
-          <Route path="/" element={<PageWrapper><HomeScreen /></PageWrapper>} />
-          <Route path="/crops" element={<PageWrapper><CropsScreen /></PageWrapper>} />
-          <Route path="/crops/:id" element={<PageWrapper><CropLogScreen /></PageWrapper>} />
-          <Route path="/disease" element={<PageWrapper><DiseaseDetectorScreen /></PageWrapper>} />
-          <Route path="/dairy" element={<PageWrapper><DairyScreen /></PageWrapper>} />
-          <Route path="/market" element={<PageWrapper><MarketScreen /></PageWrapper>} />
-          <Route path="/finance" element={<PageWrapper><FinanceScreen /></PageWrapper>} />
+          <Route path="/" element={<PageWrapper>{user.role === 'consumer' ? <ConsumerHomeScreen /> : <HomeScreen />}</PageWrapper>} />
+          <Route path="/directory" element={<PageWrapper><FarmerDirectoryScreen /></PageWrapper>} />
+          <Route path="/subscriptions" element={<PageWrapper><SubscriptionsScreen /></PageWrapper>} />
+          <Route path="/crops" element={<PageWrapper><ProtectedFarmerRoute><CropsScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/crops/:id" element={<PageWrapper><ProtectedFarmerRoute><CropLogScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/disease" element={<PageWrapper><ProtectedFarmerRoute><DiseaseDetectorScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/dairy" element={<PageWrapper><ProtectedFarmerRoute><DairyScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/market" element={<PageWrapper><ProtectedFarmerRoute><MarketScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/finance" element={<PageWrapper><ProtectedFarmerRoute><FinanceScreen /></ProtectedFarmerRoute></PageWrapper>} />
           <Route path="/ai" element={<PageWrapper><AIScreen /></PageWrapper>} />
           <Route path="/profile" element={<PageWrapper><ProfileScreen /></PageWrapper>} />
-          <Route path="/weather" element={<PageWrapper><WeatherScreen /></PageWrapper>} />
-          <Route path="/tasks" element={<PageWrapper><TasksScreen /></PageWrapper>} />
-          <Route path="/reports" element={<PageWrapper><ReportsScreen /></PageWrapper>} />
+          <Route path="/weather" element={<PageWrapper><ProtectedFarmerRoute><WeatherScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/tasks" element={<PageWrapper><ProtectedFarmerRoute><TasksScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/reports" element={<PageWrapper><ProtectedFarmerRoute><ReportsScreen /></ProtectedFarmerRoute></PageWrapper>} />
           <Route path="/settings" element={<PageWrapper><SettingsScreen /></PageWrapper>} />
-          <Route path="/inventory" element={<PageWrapper><InventoryScreen /></PageWrapper>} />
-          <Route path="/soil-health" element={<PageWrapper><SoilHealthScreen /></PageWrapper>} />
-          <Route path="/schemes" element={<PageWrapper><SchemesScreen /></PageWrapper>} />
-          <Route path="/shop" element={<PageWrapper><ShopScreen /></PageWrapper>} />
-          <Route path="/logistics" element={<PageWrapper><LogisticsScreen /></PageWrapper>} />
-          <Route path="/machinery" element={<PageWrapper><MachineryScreen /></PageWrapper>} />
-          <Route path="/labor" element={<PageWrapper><LaborScreen /></PageWrapper>} />
-          <Route path="/d2c" element={<PageWrapper><D2CScreen /></PageWrapper>} />
+          <Route path="/inventory" element={<PageWrapper><ProtectedFarmerRoute><InventoryScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/soil-health" element={<PageWrapper><ProtectedFarmerRoute><SoilHealthScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/schemes" element={<PageWrapper><ProtectedFarmerRoute><SchemesScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/shop" element={<PageWrapper><ProtectedFarmerRoute><ShopScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/logistics" element={<PageWrapper><ProtectedFarmerRoute><LogisticsScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/machinery" element={<PageWrapper><ProtectedFarmerRoute><MachineryScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/labor" element={<PageWrapper><ProtectedFarmerRoute><LaborScreen /></ProtectedFarmerRoute></PageWrapper>} />
+          <Route path="/d2c" element={<PageWrapper><ProtectedFarmerRoute><D2CScreen /></ProtectedFarmerRoute></PageWrapper>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </AnimatePresence>
@@ -224,3 +260,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+

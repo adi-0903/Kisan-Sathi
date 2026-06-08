@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, Search, ShoppingCart, Star, Package, Sprout, TestTube, Bug, Wheat } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -25,6 +26,7 @@ const MOCK_PRODUCTS: Product[] = [
 ];
 
 export function ShopScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<Category>('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,7 +39,7 @@ export function ShopScreen() {
   });
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 pb-safe">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 pb-safe">
       <header className="bg-white dark:bg-gray-800 px-5 pt-12 pb-4 shadow-sm z-10 sticky top-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
@@ -47,7 +49,7 @@ export function ShopScreen() {
             >
               <ChevronLeft size={24} />
             </button>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Agri-Shop</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('shop_title')}</h1>
           </div>
           <button className="relative p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
             <ShoppingCart size={24} />
@@ -89,7 +91,7 @@ export function ShopScreen() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex-1 p-5">
         <div className="grid grid-cols-2 gap-4">
           {filteredProducts.map((product, index) => (
             <motion.div

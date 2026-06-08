@@ -173,8 +173,8 @@ export function FinanceScreen() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-gray-50 dark:bg-[#121212]">
-      <header className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 shadow-sm z-10">
+    <div className="flex flex-col min-h-screen max-w-md mx-auto bg-gray-50 dark:bg-[#121212]">
+      <header className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 shadow-sm z-10 sticky top-0">
         <div className="flex items-center">
           <button onClick={() => navigate(-1)} className="mr-3 p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
             <ChevronLeft size={20} />
@@ -189,7 +189,7 @@ export function FinanceScreen() {
         </button>
       </header>
 
-      <div className="p-4 space-y-6 flex-1 overflow-y-auto pb-24">
+      <div className="p-4 space-y-6 flex-1 pb-24">
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-2xl border border-green-100 dark:border-green-800 shadow-sm">
             <div className="flex items-center text-green-600 dark:text-green-400 mb-2">

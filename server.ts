@@ -124,7 +124,7 @@ async function startServer() {
   app.post("/api/chat", aiLimiter, async (req, res) => {
     try {
       const ai = initGemini();
-      let { prompt, language } = req.body;
+      let { prompt, language, role } = req.body;
       
       // Sanitization
       if (typeof prompt !== 'string' || !prompt.trim()) {
@@ -145,13 +145,22 @@ async function startServer() {
         language = "English";
       }
       
-      const systemPrompt = `You are KisanSaathi AI, a friendly agricultural assistant for Indian farmers. You help with crop advice, cattle health, weather interpretation, government schemes, and market prices. Always: 
+      let systemPrompt = `You are KisanSaathi AI, a friendly agricultural assistant for Indian farmers. You help with crop advice, cattle health, weather interpretation, government schemes, and market prices. Always: 
 1. Respond in the same language the farmer uses (Hindi, Punjabi, or English). The preferred language is currently: ${language}
 2. Use simple, non-technical language a village farmer understands. 
 3. Give practical, actionable advice specific to North India/Punjab. 
 4. When recommending chemicals or medicines, mention generic names and suggest consulting a local agronomist or vet. 
 5. Be warm, respectful, and encouraging. 
 6. If you don't know something, say so honestly.`;
+
+      if (role === 'consumer') {
+        systemPrompt = `You are KisanSaathi Consumer Assistant, a friendly and passionate partner connecting urban and retail consumers with Indian farming produce. You help with discovering organic fruits/vegetables, explaining health benefits of regional crops (like millets and pulses), sharing recipes, and answering questions about local farm products. Always:
+1. Respond in the same language the consumer uses (Hindi, Punjabi, or English). The preferred language is currently: ${language}
+2. Use clear, delightful, everyday language.
+3. Show strong respect and appreciation for farmers, and encourage consumers to support direct farm-to-consumer sustainability.
+4. Keep the tone warm, welcoming, and inspiring.
+5. If you do not know something, say so honestly.`;
+      }
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
@@ -171,7 +180,7 @@ async function startServer() {
   app.post("/api/vision", aiLimiter, async (req, res) => {
     try {
       const ai = initGemini();
-      let { imageBase64, language } = req.body;
+      let { imageBase64, language, role } = req.body;
       
       if (!imageBase64 || typeof imageBase64 !== 'string') {
         res.status(400).json(createErrorResponse("Image payload is missing or invalid.", "BAD_REQUEST"));
@@ -199,9 +208,15 @@ async function startServer() {
         return;
       }
       
-      const systemPrompt = `You are an agricultural expert. Analyse this crop image.
+      let systemPrompt = `You are an agricultural expert. Analyse this crop image.
 Identify: 1) Crop type 2) Disease or pest if any 3) Severity (mild/moderate/severe) 4) Recommended treatment in simple language.
 Respond in JSON format: { "crop": "name", "disease": "name or none", "severity": "mild/moderate/severe/none", "treatment": "treatment steps", "prevention": "prevention tips" }. Output the values in ${language || 'English'}.`;
+
+      if (role === 'consumer') {
+        systemPrompt = `You are an expert on organic produce and Indian agriculture. Analyze this image of farm produce or food.
+Identify: 1) Produce/Item name 2) Freshness/Quality indicators 3) Nutritional benefits 4) Suggested recipe or usage.
+Respond in JSON format: { "crop": "name", "disease": "freshness status", "severity": "quality score out of 10", "treatment": "nutritional benefits", "prevention": "suggested recipe/usage" }. Output the values in ${language || 'English'}.`;
+      }
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",

@@ -30,15 +30,15 @@ export function SettingsScreen() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-gray-50 dark:bg-[#121212]">
-      <header className="flex items-center p-4 bg-white dark:bg-gray-800 shadow-sm z-10">
+    <div className="flex flex-col min-h-screen max-w-md mx-auto bg-gray-50 dark:bg-[#121212]">
+      <header className="flex items-center p-4 bg-white dark:bg-gray-800 shadow-sm z-10 sticky top-0">
         <button onClick={() => navigate(-1)} className="mr-3 p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
           <ChevronLeft size={20} />
         </button>
         <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">{t("settings")}</h1>
       </header>
 
-      <div className="p-4 space-y-6 flex-1 overflow-y-auto pb-24">
+      <div className="p-4 space-y-6 flex-1 pb-24">
         {/* App Language */}
         <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-50 dark:border-gray-700 flex items-center space-x-2 bg-gray-50/50 dark:bg-gray-800/50">

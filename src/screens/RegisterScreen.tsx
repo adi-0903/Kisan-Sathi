@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../lib/AuthContext';
+import { useAuth, UserRole } from '../lib/AuthContext';
 import { BrandLogo } from '../components/BrandLogo';
-import { ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Tractor, ShoppingBag } from 'lucide-react';
 
 type RegisterStep = 'PHONE' | 'OTP' | 'DETAILS';
 
@@ -14,6 +14,7 @@ export function RegisterScreen() {
 
   const [step, setStep] = useState<RegisterStep>(() => pendingVerification?.step || 'PHONE');
   
+  const [role, setRole] = useState<UserRole>(() => pendingVerification?.role || 'supplier');
   const [name, setName] = useState(() => pendingVerification?.name || '');
   const [phone, setPhone] = useState(() => pendingVerification?.phone || '');
   const [otp, setOtp] = useState('');
@@ -36,7 +37,7 @@ export function RegisterScreen() {
     }
     // Simulate sending OTP
     setStep('OTP');
-    setPendingVerification({ step: 'OTP', name, phone });
+    setPendingVerification({ step: 'OTP', name, phone, role });
   };
 
   const handleVerifyOtp = (e: React.FormEvent) => {
@@ -48,7 +49,7 @@ export function RegisterScreen() {
     }
     // Simulate successful verification
     setStep('DETAILS');
-    setPendingVerification({ step: 'DETAILS', name, phone });
+    setPendingVerification({ step: 'DETAILS', name, phone, role });
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -63,15 +64,20 @@ export function RegisterScreen() {
       return;
     }
     
-    await register({ 
-      id: Date.now().toString(), 
-      name, 
-      phone, 
-      pin,
-      village,
-      state,
-      landSize
-    });
+    try {
+      await register({ 
+        name, 
+        phone, 
+        pin,
+        role,
+        village,
+        state,
+        landSize
+      });
+      navigate('/');
+    } catch (e: any) {
+      setError(e.message || "Failed to register.");
+    }
   };
 
   return (
@@ -94,6 +100,27 @@ export function RegisterScreen() {
 
         {step === 'PHONE' && (
           <form onSubmit={handleSendOtp} className="space-y-4">
+            
+            <div className="space-y-2 mb-4">
+              <label className="text-sm font-bold text-gray-700 ml-1">I am a *</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole('supplier')}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-colors ${role === 'supplier' ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-gray-200 bg-white text-gray-500 font-medium'}`}
+                >
+                  <Tractor size={18} /> Farmer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('consumer')}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 transition-colors ${role === 'consumer' ? 'border-emerald-500 bg-emerald-50 text-emerald-600 font-bold' : 'border-gray-200 bg-white text-gray-500 font-medium'}`}
+                >
+                  <ShoppingBag size={18} /> Consumer
+                </button>
+              </div>
+            </div>
+
             <div className="space-y-1">
               <label className="text-sm font-bold text-gray-700 ml-1">{t("full_name")} *</label>
               <input
@@ -128,7 +155,7 @@ export function RegisterScreen() {
               <ShieldCheck size={40} className="mb-2" />
               <p className="text-sm font-medium">We've sent a verification code to</p>
               <p className="font-bold">{phone}</p>
-              <p className="text-xs mt-2 opacity-75">(For demo: enter any 4 digits)</p>
+              <p className="text-xs mt-2 opacity-75">Enter the 4-digit code to continue</p>
             </div>
 
             <div className="space-y-1 text-left">
@@ -198,19 +225,21 @@ export function RegisterScreen() {
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-sm font-bold text-gray-700 ml-1">{t("total_land")}</label>
-              <div className="relative">
-                <input
-                  type="number"
-                  value={landSize}
-                  onChange={e => setLandSize(e.target.value)}
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-secondary/50"
-                  placeholder="0"
-                />
-                <span className="absolute right-3 top-3.5 text-xs font-bold text-gray-400">{t("acres")}</span>
+            {role === 'supplier' && (
+              <div className="space-y-1">
+                <label className="text-sm font-bold text-gray-700 ml-1">{t("total_land")}</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={landSize}
+                    onChange={e => setLandSize(e.target.value)}
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                    placeholder="0"
+                  />
+                  <span className="absolute right-3 top-3.5 text-xs font-bold text-gray-400">{t("acres")}</span>
+                </div>
               </div>
-            </div>
+            )}
 
             <button type="submit" className="w-full bg-secondary text-white font-bold py-4 rounded-xl shadow-md mt-6 active:scale-95 transition-transform">
               {t("create_account")}
@@ -221,7 +250,7 @@ export function RegisterScreen() {
 
       <div className="mt-8 text-center pb-6">
         <span className="text-gray-500 text-sm">{t("have_account")} </span>
-        <button onClick={() => navigate('/')} className="text-secondary font-bold text-sm">{t("sign_in")}</button>
+        <button type="button" onClick={() => navigate('/')} className="text-secondary font-bold text-sm">{t("sign_in")}</button>
       </div>
     </div>
   );

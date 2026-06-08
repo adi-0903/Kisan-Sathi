@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, Leaf, LogOut, Settings, Moon, Sun, FileText, Cloud, CloudOff, RefreshCw, CheckCircle2, Bell } from 'lucide-react';
+import { Globe, Leaf, LogOut, Settings, Moon, Sun, FileText, Cloud, CloudOff, RefreshCw, CheckCircle2, Bell, Heart, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ export function ProfileScreen() {
   
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncing, setSyncing] = useState(false);
-  const [pendingItems, setPendingItems] = useState(navigator.onLine ? 0 : 3);
+  const [pendingItems, setPendingItems] = useState(navigator.onLine ? 0 : 2);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -24,7 +24,7 @@ export function ProfileScreen() {
     };
     const handleOffline = () => {
       setIsOnline(false);
-      setPendingItems(3);
+      setPendingItems(2);
     };
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -46,6 +46,8 @@ export function ProfileScreen() {
     }, 1000);
   };
 
+  const isConsumer = user?.role === 'consumer';
+
   return (
     <div className="p-4 space-y-6">
       <header className="py-2">
@@ -53,22 +55,44 @@ export function ProfileScreen() {
       </header>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center space-x-4">
-        <div className="w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-full flex-shrink-0 flex items-center justify-center text-primary text-2xl font-bold uppercase">
+        <div className={`w-16 h-16 ${isConsumer ? 'bg-emerald-100 text-emerald-700' : 'bg-primary/10 text-primary'} dark:bg-primary/20 rounded-full flex-shrink-0 flex items-center justify-center text-2xl font-bold uppercase`}>
           {user?.name?.charAt(0) || 'K'}
         </div>
         <div className="flex-1 overflow-hidden">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name || 'Farmer'}</h2>
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name || (isConsumer ? 'Urban Consumer' : 'Farmer')}</h2>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mt-0.5 mb-1">{user?.phone || 'No phone'}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-1">
-            {user?.village || 'Unknown Village'}{user?.state ? `, ${user?.state}` : ''}
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-1.5">
+            {user?.village || 'Unknown Location'}{user?.state ? `, ${user?.state}` : ''}
           </p>
-          <div className="inline-flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs font-medium text-gray-600 dark:text-gray-300">
-            <Leaf size={12} className="mr-1 text-primary" /> {user?.landSize || '0'} Acres
-          </div>
+          {isConsumer ? (
+            <div className="inline-flex items-center bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full text-xs font-extrabold text-emerald-800 dark:text-emerald-300 border border-emerald-100/30">
+              <Heart size={11} className="mr-1 text-emerald-600 animate-pulse fill-current" /> Green Supporter
+            </div>
+          ) : (
+            <div className="inline-flex items-center bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs font-medium text-gray-600 dark:text-gray-300">
+              <Leaf size={12} className="mr-1 text-primary" /> {user?.landSize || '0'} Acres
+            </div>
+          )}
         </div>
       </div>
 
       <div className="space-y-4">
+        {/* Support Eco-impact stat cards for consumer */}
+        {isConsumer && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl">
+              <span className="text-[10px] font-black uppercase text-emerald-800 tracking-wider">Eco Benefit</span>
+              <div className="text-xl font-black text-emerald-950 mt-1">12.4 kg</div>
+              <p className="text-[10px] text-emerald-700 mt-1 leading-snug">Carbon footprint saved by shopping farm-direct.</p>
+            </div>
+            <div className="bg-amber-50/50 border border-amber-100 p-4 rounded-2xl">
+              <span className="text-[10px] font-black uppercase text-amber-800 tracking-wider">Social Impact</span>
+              <div className="text-xl font-black text-amber-950 mt-1">2 Families</div>
+              <p className="text-[10px] text-amber-700 mt-1 leading-snug">Grassroots farming households fully supported.</p>
+            </div>
+          </div>
+        )}
+
         <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-50 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex items-center space-x-2">
@@ -105,18 +129,29 @@ export function ProfileScreen() {
             
             {pendingItems > 0 && (
               <div className="space-y-2">
-                <div className="text-xs flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-300 font-medium">Logged new crop: Wheat</span>
-                  <span className="text-orange-500 font-bold text-[10px] uppercase tracking-wider">Pending</span>
-                </div>
-                <div className="text-xs flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-300 font-medium">Added morning milk log</span>
-                  <span className="text-orange-500 font-bold text-[10px] uppercase tracking-wider">Pending</span>
-                </div>
-                <div className="text-xs flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
-                  <span className="text-gray-600 dark:text-gray-300 font-medium">Completed task: Irrigation</span>
-                  <span className="text-orange-500 font-bold text-[10px] uppercase tracking-wider">Pending</span>
-                </div>
+                {isConsumer ? (
+                  <>
+                    <div className="text-xs flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Cart status check & favorites cache</span>
+                      <span className="text-orange-500 font-bold text-[10px] uppercase tracking-wider">Pending</span>
+                    </div>
+                    <div className="text-xs flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Synced urban location indicators</span>
+                      <span className="text-orange-500 font-bold text-[10px] uppercase tracking-wider">Pending</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-xs flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Logged new crop: Wheat</span>
+                      <span className="text-orange-500 font-bold text-[10px] uppercase tracking-wider">Pending</span>
+                    </div>
+                    <div className="text-xs flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-2.5 rounded-lg border border-gray-100 dark:border-gray-700">
+                      <span className="text-gray-600 dark:text-gray-300 font-medium">Added morning milk log</span>
+                      <span className="text-orange-500 font-bold text-[10px] uppercase tracking-wider">Pending</span>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -134,12 +169,14 @@ export function ProfileScreen() {
 
         <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
           <div className="p-2">
-            <button onClick={() => navigate('/reports')} className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors">
-              <div className="flex items-center space-x-3">
-                <FileText size={18} className="text-gray-400" />
-                <span>{t('farm_reports')}</span>
-              </div>
-            </button>
+            {!isConsumer && (
+              <button onClick={() => navigate('/reports')} className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors">
+                <div className="flex items-center space-x-3">
+                  <FileText size={18} className="text-gray-400" />
+                  <span>{t('farm_reports')}</span>
+                </div>
+              </button>
+            )}
             <button onClick={() => navigate('/settings')} className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl transition-colors">
               <div className="flex items-center space-x-3">
                 <Settings size={18} className="text-gray-400" />

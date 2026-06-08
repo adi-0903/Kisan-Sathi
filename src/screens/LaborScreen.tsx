@@ -95,7 +95,7 @@ export function LaborScreen() {
       <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10">
         <div className="p-4 border-b border-gray-100 dark:border-gray-700 font-bold text-lg text-gray-800 dark:text-gray-100 flex items-center space-x-2">
           <HardHat className="text-secondary" />
-          <span>Labor & Wages</span>
+          <span>{t('labor_title')}</span>
         </div>
         <div className="flex px-4 py-2 space-x-4 overflow-x-auto text-sm no-scrollbar">
           {(['attendance', 'workers', 'payouts'] as const).map(tab => (

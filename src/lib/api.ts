@@ -1,8 +1,8 @@
-export const fetchChatResponse = async (prompt: string, language: string) => {
+export const fetchChatResponse = async (prompt: string, language: string, role?: string) => {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, language })
+    body: JSON.stringify({ prompt, language, role })
   });
   if (!res.ok) throw new Error("Failed to fetch response");
   const data = await res.json();

@@ -13,6 +13,18 @@
   --color-text: #1C2B1E;
 }
 
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide,
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 body {
   background-color: var(--color-background);
   color: var(--color-text);

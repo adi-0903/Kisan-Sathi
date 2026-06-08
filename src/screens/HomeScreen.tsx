@@ -69,13 +69,13 @@ export function HomeScreen() {
   return (
     <div className="space-y-6">
       {/* Immersive Hero Banner */}
-      <div className="bg-gradient-to-br from-primary to-[#1B4323] dark:from-[#113118] dark:to-black rounded-b-3xl p-5 pt-6 pb-10 shadow-md relative overflow-hidden">
+      <div className="bg-gradient-to-br from-primary to-[#1B4323] dark:from-[#113118] dark:to-black rounded-b-[24px] p-5 pt-4 pb-8 shadow-sm relative overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/20 dark:bg-yellow-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-white/5 rounded-t-[100%] translate-y-6 scale-110" />
         <div className="absolute bottom-0 left-0 right-0 h-8 bg-white/10 rounded-t-[100%] translate-y-4" />
 
-        <header className="flex justify-between items-center relative z-10 mb-4">
+        <header className="flex justify-between items-center relative z-10">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -120,199 +120,152 @@ export function HomeScreen() {
             </div>
           </motion.div>
         </header>
-
-        {/* Quick Weather inside Hero */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="relative z-10 flex items-center justify-between text-white"
-        >
-          <div className="flex items-center space-x-2">
-            <Sun size={28} className="text-yellow-400 drop-shadow-md" />
-            <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider opacity-80">{t("weather_forecast")}</div>
-              <div className="text-lg font-medium">{weather.temp}°C • {weather.condition}</div>
-            </div>
-          </div>
-          <button 
-            onClick={() => navigate('/weather')}
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold transition-colors border border-white/20"
-          >
-            Details
-          </button>
-        </motion.div>
       </div>
 
-      <div className="px-5 space-y-8 -mt-6 relative z-20 pb-10">
-        {/* Weather Forecast Widget */}
+      <div className="px-5 space-y-6 -mt-4 relative z-20 pb-10">
+        {/* Compact Weather & Spray Widget */}
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
-          className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
+          onClick={() => navigate('/weather')}
+          className="bg-white dark:bg-gray-800 rounded-[20px] shadow-sm border border-gray-100 dark:border-gray-700 p-3 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
         >
-          <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50">
-            <div className="flex items-center space-x-2">
-              <Cloud size={18} className="text-gray-400" />
-              <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300">{t("5_day_forecast")}</h3>
-            </div>
-            {sprayRec && (
-              <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${sprayRec.isGood ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'}`}>
-                {sprayRec.recommendation || t("spray_rec")}
-              </div>
-            )}
+          <div className="flex items-center space-x-3">
+             <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-blue-500 dark:text-blue-400">
+               {weatherData?.forecast?.[0]?.icon ? (
+                 <img src={`https://openweathermap.org/img/wn/${weatherData.forecast[0].icon}.png`} alt="weather" className="w-6 h-6 drop-shadow-sm" />
+               ) : (
+                 <Cloud size={24} />
+               )}
+             </div>
+             <div>
+               <div className="text-lg font-black text-gray-800 dark:text-white flex items-center gap-2 leading-none">
+                 {weather.temp}°C
+                 {sprayRec && sprayRec.isGood && (
+                   <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Good to Spray</span>
+                 )}
+                 {sprayRec && !sprayRec.isGood && (
+                   <span className="text-[9px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">High Wind/Rain</span>
+                 )}
+               </div>
+               <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">{weather.condition} • View 5-Day Forecast</p>
+             </div>
           </div>
-          
-          <div className="p-4">
-            {weatherError ? (
-              <div className="text-xs text-orange-500 bg-orange-50 dark:bg-orange-900/20 p-3 rounded-xl border border-orange-100 dark:border-orange-800">
-                {weatherError}
-              </div>
-            ) : !weatherData ? (
-              <div className="flex items-center justify-center p-6 text-gray-400">
-                <Loader2 size={24} className="animate-spin" />
-              </div>
-            ) : (
-              <>
-                <div className="flex overflow-x-auto space-x-3 pb-2 scrollbar-hide">
-                  {weatherData.forecast?.map((day: any, i: number) => (
-                    <div key={i} className="flex-shrink-0 w-20 flex flex-col items-center p-3 rounded-2xl bg-gray-50 dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700">
-                      <span className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2">{day.day}</span>
-                      {day.icon ? (
-                        <img src={`https://openweathermap.org/img/wn/${day.icon}.png`} alt={day.condition} className="w-10 h-10 mb-1 drop-shadow-sm" />
-                      ) : (
-                        <CloudRain size={24} className="text-blue-400 mb-2" />
-                      )}
-                      <span className="text-base font-bold text-gray-800 dark:text-gray-200">{day.temp}°</span>
-                    </div>
-                  ))}
-                </div>
-
-                {sprayRec && (
-                  <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <div className="flex items-start space-x-3">
-                      <div className={`mt-0.5 p-1.5 rounded-full ${sprayRec.isGood ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'}`}>
-                        <Sprout size={16} />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                          <strong className="text-gray-900 dark:text-white block mb-0.5">{t("ai_spray_advice")}</strong>
-                          {sprayRec.reasoning}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          <ChevronRight size={18} className="text-gray-400" />
         </motion.section>
 
-        {/* Premium Upgrade CTA */}
+        {/* Minimal Pro Banner */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.35 }}
+          onClick={() => setShowPremium(true)}
+          className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-black dark:to-gray-900 rounded-2xl p-4 shadow-lg cursor-pointer flex justify-between items-center relative overflow-hidden"
         >
-          <div 
-            onClick={() => setShowPremium(true)}
-            className="relative overflow-hidden bg-gray-900 rounded-3xl p-5 shadow-lg group cursor-pointer active:scale-95 transition-transform"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity" />
-            <div className="relative z-10 flex items-center justify-between">
-              <div>
-                <div className="flex items-center space-x-1.5 mb-1">
-                  <Crown size={14} className="text-orange-400" />
-                  <h4 className="text-sm font-black tracking-widest text-orange-400 uppercase">KisanSaathi Pro</h4>
-                </div>
-                <p className="text-white font-bold text-lg">Unlock AI Scans, Reports & Kisan GPT ✨</p>
-              </div>
-              <div className="bg-white/10 text-white p-2.5 rounded-full backdrop-blur-sm shadow-sm group-hover:bg-white group-hover:text-gray-900 transition-colors">
-                <ChevronRight size={20} />
-              </div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/20 rounded-full blur-2xl" />
+          <div className="flex items-center space-x-3 relative z-10">
+            <div className="bg-orange-500/20 p-2 rounded-full text-orange-400">
+              <Crown size={18} />
             </div>
+            <div>
+              <h4 className="text-white font-bold text-sm text-shadow-sm">Unlock KisanSaathi Pro</h4>
+              <p className="text-gray-400 text-xs mt-0.5">AI crop scans, advanced reports & GPT</p>
+            </div>
+          </div>
+          <div className="bg-white/10 text-white p-1.5 rounded-full backdrop-blur-sm relative z-10">
+            <ChevronRight size={16} />
           </div>
         </motion.section>
 
         {/* Smart Alert Removed from inline and moved to pop-up */}
 
-        {/* Action shortcuts */}
+        {/* Core Action shortcuts */}
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
           className="grid grid-cols-2 gap-4"
         >
-          <button onClick={() => navigate('/disease')} className="bg-white dark:bg-gray-800 border-2 border-primary/20 hover:border-primary/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-primary/10 text-primary p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <Sprout size={24} />
+          <button onClick={() => navigate('/disease')} className="bg-white dark:bg-gray-800 border-[1.5px] border-primary/20 hover:border-primary/50 transition-colors p-4 rounded-3xl flex flex-col items-center text-center shadow-sm active:scale-95 group">
+            <div className="bg-primary/10 text-primary p-3.5 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <Sprout size={28} />
             </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Diagnose<br/>Disease</span>
+            <span className="text-sm font-bold text-gray-800 dark:text-gray-200" dangerouslySetInnerHTML={{ __html: t("diagnose_disease").replace(' ', '<br/>') }} />
           </button>
           
-          <button onClick={() => navigate('/market')} className="bg-white dark:bg-gray-800 border-2 border-secondary/20 hover:border-secondary/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-secondary/10 text-secondary p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <ChevronRight size={24} />
+          <button onClick={() => navigate('/market')} className="bg-white dark:bg-gray-800 border-[1.5px] border-secondary/20 hover:border-secondary/50 transition-colors p-4 rounded-3xl flex flex-col items-center text-center shadow-sm active:scale-95 group">
+            <div className="bg-secondary/10 text-secondary p-3.5 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <ChevronRight size={28} />
             </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Live Mandi<br/>Rates</span>
+            <span className="text-sm font-bold text-gray-800 dark:text-gray-200" dangerouslySetInnerHTML={{ __html: t("live_mandi").replace(' ', '<br/>') }} />
           </button>
 
-          <button onClick={() => navigate('/schemes')} className="bg-white dark:bg-gray-800 border-2 border-blue-500/20 hover:border-blue-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-blue-500/10 text-blue-600 dark:text-blue-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <Landmark size={24} />
+          <button onClick={() => navigate('/schemes')} className="bg-white dark:bg-gray-800 border-[1.5px] border-blue-500/20 hover:border-blue-500/50 transition-colors p-4 rounded-3xl flex flex-col items-center text-center shadow-sm active:scale-95 group">
+            <div className="bg-blue-500/10 text-blue-600 dark:text-blue-400 p-3.5 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <Landmark size={28} />
             </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Govt.<br/>Schemes</span>
-          </button>
-          
-          <button onClick={() => navigate('/inventory')} className="bg-white dark:bg-gray-800 border-2 border-emerald-500/20 hover:border-emerald-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <Package size={24} />
-            </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">{t('inventory')}</span>
+            <span className="text-sm font-bold text-gray-800 dark:text-gray-200" dangerouslySetInnerHTML={{ __html: t("govt_schemes").replace(' ', '<br/>') }} />
           </button>
 
-          <button onClick={() => navigate('/logistics')} className="bg-white dark:bg-gray-800 border-2 border-indigo-500/20 hover:border-indigo-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <Truck size={24} />
+          <button onClick={() => navigate('/shop')} className="bg-white dark:bg-gray-800 border-[1.5px] border-orange-500/20 hover:border-orange-500/50 transition-colors p-4 rounded-3xl flex flex-col items-center text-center shadow-sm active:scale-95 group">
+            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 p-3.5 rounded-full mb-3 group-hover:scale-110 transition-transform">
+               <ShoppingCart size={28} />
             </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Book<br/>Logistics</span>
+            <span className="text-sm font-bold text-gray-800 dark:text-gray-200">Agri<br/>Shop</span>
           </button>
+        </motion.section>
 
-          <button onClick={() => navigate('/machinery')} className="bg-white dark:bg-gray-800 border-2 border-yellow-500/20 hover:border-yellow-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <Tractor size={24} />
-            </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Rent<br/>Machinery</span>
-          </button>
+        {/* More Services */}
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.55 }}
+        >
+          <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase mb-3 px-1 mt-6">More Services</h3>
+          <div className="flex overflow-x-auto space-x-3 pb-4 scrollbar-hide -mx-5 px-5">
+            <button onClick={() => navigate('/inventory')} className="flex flex-col items-center min-w-[72px] group">
+              <div className="w-14 h-14 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                 <Package size={22} />
+              </div>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center leading-tight">Inventory</span>
+            </button>
 
-          <button onClick={() => navigate('/labor')} className="bg-white dark:bg-gray-800 border-2 border-teal-500/20 hover:border-teal-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-teal-500/10 text-teal-600 dark:text-teal-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <HardHat size={24} />
-            </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Labor &<br/>Wages</span>
-          </button>
+            <button onClick={() => navigate('/logistics')} className="flex flex-col items-center min-w-[72px] group">
+              <div className="w-14 h-14 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                 <Truck size={22} />
+              </div>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center leading-tight">Logistics</span>
+            </button>
 
-          <button onClick={() => navigate('/d2c')} className="bg-white dark:bg-gray-800 border-2 border-emerald-500/20 hover:border-emerald-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <Store size={24} />
-            </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">D2C<br/>Storefront</span>
-          </button>
+            <button onClick={() => navigate('/machinery')} className="flex flex-col items-center min-w-[72px] group">
+              <div className="w-14 h-14 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center text-yellow-600 dark:text-yellow-400 shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                 <Tractor size={22} />
+              </div>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center leading-tight">Machinery</span>
+            </button>
 
-          <button onClick={() => navigate('/shop')} className="bg-white dark:bg-gray-800 border-2 border-orange-500/20 hover:border-orange-500/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-orange-500/10 text-orange-600 dark:text-orange-400 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <ShoppingCart size={24} />
-            </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">Agri<br/>Shop</span>
-          </button>
-          
-          <button onClick={() => navigate('/soil-health')} className="bg-white dark:bg-gray-800 border-2 border-amber-600/20 hover:border-amber-600/50 transition-colors p-5 rounded-3xl flex flex-col items-start text-left shadow-sm active:scale-95 group">
-            <div className="bg-amber-600/10 text-amber-700 dark:text-amber-500 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-               <TestTube2 size={24} />
-            </div>
-            <span className="text-base font-bold text-gray-800 dark:text-gray-200">{t('soil_health')}</span>
-          </button>
+            <button onClick={() => navigate('/labor')} className="flex flex-col items-center min-w-[72px] group">
+              <div className="w-14 h-14 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center text-teal-600 dark:text-teal-400 shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                 <HardHat size={22} />
+              </div>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center leading-tight">Labor</span>
+            </button>
+
+            <button onClick={() => navigate('/d2c')} className="flex flex-col items-center min-w-[72px] group">
+              <div className="w-14 h-14 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                 <Store size={22} />
+              </div>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center leading-tight">D2C<br/>Storefront</span>
+            </button>
+            
+            <button onClick={() => navigate('/soil-health')} className="flex flex-col items-center min-w-[72px] group">
+              <div className="w-14 h-14 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-full flex items-center justify-center text-amber-700 dark:text-amber-500 shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                 <TestTube2 size={22} />
+              </div>
+              <span className="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center leading-tight">Soil<br/>Health</span>
+            </button>
+          </div>
         </motion.section>
 
         {/* Upcoming Tasks */}

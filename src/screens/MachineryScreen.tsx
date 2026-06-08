@@ -37,7 +37,7 @@ export function MachineryScreen() {
             <Tractor size={24} />
           </div>
           <div>
-            <h1 className="font-bold text-gray-800 dark:text-gray-100 text-lg">Machinery Rental</h1>
+            <h1 className="font-bold text-gray-800 dark:text-gray-100 text-lg">{t('machinery_title')}</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400">Peer-to-Peer Farm Equipment</p>
           </div>
         </div>

@@ -5,14 +5,22 @@ import { useNavigate } from 'react-router-dom';
 import { fetchChatResponse } from '../lib/api';
 import { useSubscription } from '../lib/subscription';
 import { PremiumModal } from '../components/PremiumModal';
+import { useAuth } from '../lib/AuthContext';
 
 export function AIScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { isExpired } = useSubscription();
+  const { user } = useAuth();
+  
+  const isConsumer = user?.role === 'consumer';
+  const initialGreeting = isConsumer 
+    ? t('greeting') + "! I am Kisan GPT. How can I help you discover fresh organic farm produce, understand nutritional values, or support local Indian farmers today?"
+    : t('greeting') + "! I am Kisan GPT. How can I help you with your farm today?";
+
   const [showPremiumOptions, setShowPremiumOptions] = useState(isExpired);
   const [messages, setMessages] = useState<{role: 'user'|'model', text: string}[]>([
-    { role: 'model', text: t('greeting') + "! I am Kisan GPT. How can I help you with your farm today?" }
+    { role: 'model', text: initialGreeting }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,7 +76,7 @@ export function AIScreen() {
     setLoading(true);
 
     try {
-      const responseText = await fetchChatResponse(text, i18n.language);
+      const responseText = await fetchChatResponse(text, i18n.language, user?.role);
       setMessages(prev => [...prev, { role: 'model', text: responseText }]);
       if (wasVoice) {
         speakText(responseText); // Speech-to-speech: auto reply with voice
@@ -103,11 +111,17 @@ export function AIScreen() {
     recognition.onend = () => setIsListening(false);
   };
 
-  const suggestions = [
-    "Wheat yellowing?",
-    "Today's Mandi price?",
-    "Scheme for tractor?"
-  ];
+  const suggestions = isConsumer 
+    ? [
+        "Explain benefits of organic millets?",
+        "How is Vedic Cow Ghee prepared?",
+        "Healthy breakfast choices from local crops?"
+      ]
+    : [
+        "Wheat yellowing?",
+        "Today's Mandi price?",
+        "Scheme for tractor?"
+      ];
 
   return (
     <div className="flex flex-col h-screen max-w-md mx-auto bg-gray-50">

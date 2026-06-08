@@ -239,15 +239,16 @@ export function ReportsScreen() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-gray-50 dark:bg-[#121212]">
-      <header className="flex items-center p-4 bg-white dark:bg-gray-800 shadow-sm z-10">
-        <button onClick={() => navigate(-1)} className="mr-3 p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-          <ChevronLeft size={20} />
-        </button>
-        <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">Farm Reports</h1>
-      </header>
+    <div className="flex flex-col min-h-screen max-w-md mx-auto bg-gray-50 dark:bg-[#121212]">
+      <div className="sticky top-0 z-10">
+        <header className="flex items-center p-4 bg-white dark:bg-gray-800 shadow-sm">
+          <button onClick={() => navigate(-1)} className="mr-3 p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+            <ChevronLeft size={20} />
+          </button>
+          <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">Farm Reports</h1>
+        </header>
 
-      <div className="flex px-4 pt-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 space-x-6 overflow-x-auto no-scrollbar">
+        <div className="flex px-4 pt-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 space-x-6 overflow-x-auto no-scrollbar">
         <button 
           onClick={() => setActiveTab('exports')}
           className={`pb-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors duration-200 ${activeTab === 'exports' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
@@ -260,9 +261,10 @@ export function ReportsScreen() {
         >
           Yield Trends
         </button>
+        </div>
       </div>
 
-      <div className="p-4 space-y-6 flex-1 overflow-y-auto">
+      <div className="p-4 space-y-6 flex-1 pb-24">
         {activeTab === 'exports' ? (
           <>
             <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">

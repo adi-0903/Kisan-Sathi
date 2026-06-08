@@ -45,15 +45,15 @@ export function DiseaseDetectorScreen() {
   };
 
   return (
-    <div className="p-4 flex flex-col h-screen max-w-md mx-auto bg-background">
-      <header className="flex items-center pb-4 mb-4 border-b border-gray-200">
-        <button onClick={() => navigate(-1)} className="mr-3 p-2 rounded-full bg-white text-gray-800 shadow-sm">
+    <div className="flex flex-col min-h-screen max-w-md mx-auto bg-background">
+      <header className="flex items-center p-4 bg-white border-b border-gray-200 sticky top-0 z-10">
+        <button onClick={() => navigate(-1)} className="mr-3 p-2 rounded-full bg-gray-100 text-gray-800 shadow-sm">
           <ChevronLeft size={20} />
         </button>
         <h1 className="text-xl font-bold text-gray-800">Disease Detection</h1>
       </header>
 
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div className="flex-1 p-4 pb-20">
         {!image ? (
           <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-2xl bg-white mb-6">
             <label className="flex flex-col items-center justify-center cursor-pointer p-6">

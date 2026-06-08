@@ -17,7 +17,7 @@ interface Scheme {
   icon: React.ReactNode;
 }
 
-const mockSchemes: Scheme[] = [
+const schemes: Scheme[] = [
   {
     id: 'pm-kisan',
     title: 'PM-KISAN Samman Nidhi',
@@ -25,7 +25,7 @@ const mockSchemes: Scheme[] = [
     category: 'Subsidies',
     description: 'Income support of Rs. 6,000 per year in three equal installments to all land holding farmer families.',
     eligibility: ['Small and marginal farmers', 'Valid Aadhaar Linked Bank Account'],
-    link: '#',
+    link: 'https://pmkisan.gov.in/',
     icon: <Wallet className="text-emerald-500" size={24} />
   },
   {
@@ -35,7 +35,7 @@ const mockSchemes: Scheme[] = [
     category: 'Insurance',
     description: 'Comprehensive crop insurance coverage against non-preventable natural risks from pre-sowing to post-harvest.',
     eligibility: ['All farmers growing notified crops', 'Loanee and Non-Loanee farmers'],
-    link: '#',
+    link: 'https://pmfby.gov.in/',
     icon: <ShieldCheck className="text-blue-500" size={24} />
   },
   {
@@ -43,20 +43,40 @@ const mockSchemes: Scheme[] = [
     title: 'Kisan Credit Card (KCC)',
     provider: 'Public Sector Banks',
     category: 'Loans',
-    description: 'Affordable credit for agricultural inputs and expenses at subsidized interest rates.',
+    description: 'Affordable credit for agricultural inputs and expenses at subsidized interest rates up to Rs 3 Lakhs.',
     eligibility: ['Individual farmers/Joint borrowers', 'Tenant Farmers, Oral Lessees'],
-    link: '#',
+    link: 'https://www.myscheme.gov.in/schemes/kcc',
     icon: <Landmark className="text-amber-500" size={24} />
   },
   {
     id: 'smam',
-    title: 'Agri Mechanization Subsidy',
+    title: 'Sub-Mission on Agricultural Mechanization (SMAM)',
     provider: 'State/Central',
     category: 'Subsidies',
-    description: 'Subsidy up to 50-80% for purchasing agricultural machinery and equipment (Tractors, Harvesters).',
-    eligibility: ['Valid Farmer ID', 'Depending on state guidelines'],
-    link: '#',
+    description: 'Subsidy up to 50-80% for purchasing agricultural machinery and equipment (Tractors, Harvesters, etc).',
+    eligibility: ['Valid Farmer ID', 'Small, Marginal, and Women farmers prioritize'],
+    link: 'https://agrimachinery.nic.in/',
     icon: <BadgePercent className="text-purple-500" size={24} />
+  },
+  {
+    id: 'pmksy',
+    title: 'PM Krishi Sinchayee Yojana',
+    provider: 'Central Government',
+    category: 'Subsidies',
+    description: 'Focuses on creating sources for assured irrigation, improving water use efficiency with micro-irrigation.',
+    eligibility: ['All farmers', 'Priority to target groups under Direct Benefit Transfer'],
+    link: 'https://pmksy.gov.in/',
+    icon: <Landmark className="text-blue-400" size={24} />
+  },
+  {
+    id: 'enam',
+    title: 'National Agriculture Market (e-NAM)',
+    provider: 'Central Government',
+    category: 'All',
+    description: 'Pan-India electronic trading portal which networks the existing APMC mandis to create a unified national market.',
+    eligibility: ['Farmers registered with APMC', 'Traders and FPOs'],
+    link: 'https://enam.gov.in/web/',
+    icon: <Wallet className="text-green-600" size={24} />
   }
 ];
 
@@ -66,7 +86,7 @@ export function SchemesScreen() {
   const [activeCategory, setActiveCategory] = useState<SchemeCategory>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredSchemes = mockSchemes.filter(scheme => {
+  const filteredSchemes = schemes.filter(scheme => {
     const matchesCategory = activeCategory === 'All' || scheme.category === activeCategory;
     const matchesSearch = scheme.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           scheme.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -74,8 +94,8 @@ export function SchemesScreen() {
   });
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 pb-20">
-      <header className="bg-white dark:bg-gray-800 px-5 pt-12 pb-4 shadow-sm z-10">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+      <header className="bg-white dark:bg-gray-800 px-5 pt-12 pb-4 shadow-sm z-10 sticky top-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <button 
@@ -84,7 +104,7 @@ export function SchemesScreen() {
             >
               <ChevronLeft size={24} />
             </button>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Schemes & Subsidies</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('schemes_title')}</h1>
           </div>
         </div>
 
@@ -95,7 +115,7 @@ export function SchemesScreen() {
           <input
             type="text"
             className="block w-full pl-11 pr-4 py-3 bg-gray-100 dark:bg-gray-700 border-0 rounded-2xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-gray-800 transition-colors shadow-inner"
-            placeholder="Search schemes, loans..."
+            placeholder={t("search_schemes")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -118,7 +138,7 @@ export function SchemesScreen() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex-1 p-5">
         <AnimatePresence>
           {filteredSchemes.length > 0 ? (
             <div className="space-y-4">
@@ -155,21 +175,21 @@ export function SchemesScreen() {
                   </p>
 
                   <div className="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-3 mb-4 border border-gray-100 dark:border-gray-700/50">
-                    <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Eligibility Highlights</h4>
+                    <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">{t('eligibility_highlights')}</h4>
                     <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
                       {scheme.eligibility.map((req, i) => (
                         <li key={i} className="flex items-center">
                           <div className="w-1.5 h-1.5 bg-secondary rounded-full mr-2" />
-                          {req}
+                          {t(req) || req}
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <button className="w-full py-3 bg-gray-50 dark:bg-gray-700 hover:bg-primary hover:text-white dark:hover:bg-primary text-primary font-bold rounded-xl transition-colors flex items-center justify-center group">
-                    <span>Check Eligibility & Apply</span>
+                  <a href={scheme.link} target="_blank" rel="noopener noreferrer" className="w-full py-3 bg-gray-50 dark:bg-gray-700 hover:bg-primary hover:text-white dark:hover:bg-primary text-primary font-bold rounded-xl transition-colors flex items-center justify-center group">
+                    <span>{t('check_eligibility')}</span>
                     <ChevronRight size={18} className="ml-1 group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  </a>
                 </motion.div>
               ))}
             </div>

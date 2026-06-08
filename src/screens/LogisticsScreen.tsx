@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, Truck, MapPin, Calendar, Scale, ChevronRight, Star, ShieldCheck, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -22,6 +23,7 @@ const MOCK_VEHICLES: Vehicle[] = [
 ];
 
 export function LogisticsScreen() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState<'form' | 'results'>('form');
 
@@ -39,7 +41,7 @@ export function LogisticsScreen() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 pb-safe">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 pb-safe">
       <header className="bg-white dark:bg-gray-800 px-5 pt-12 pb-4 shadow-sm z-10 sticky top-0">
         <div className="flex items-center space-x-3">
           <button 
@@ -48,11 +50,11 @@ export function LogisticsScreen() {
           >
             <ChevronLeft size={24} />
           </button>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Transport & Logistics</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t('logistics_title')}</h1>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex-1 p-5">
         <AnimatePresence mode="wait">
           {step === 'form' ? (
             <motion.div

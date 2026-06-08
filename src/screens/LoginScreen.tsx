@@ -20,14 +20,18 @@ export function LoginScreen() {
       setError('Please fill in all fields');
       return;
     }
-    const success = await login(phone, pin);
-    if (!success) {
-      setError("Invalid phone number or PIN");
+    try {
+      const success = await login(phone, pin);
+      if (!success) {
+        setError("Invalid phone number or PIN");
+      }
+    } catch (e: any) {
+      setError(e.message || "Invalid phone number or PIN");
     }
   };
 
   return (
-    <div className="flex flex-col h-screen p-6 max-w-md mx-auto items-center justify-center bg-background">
+    <div className="flex flex-col min-h-screen p-6 max-w-md mx-auto items-center justify-center bg-background">
       <div className="mb-6">
         <BrandLogo size={80} />
       </div>
@@ -70,6 +74,8 @@ export function LoginScreen() {
         <span className="text-gray-500 text-sm">{t("no_account")} </span>
         <button onClick={() => navigate('/register')} className="text-primary font-bold text-sm">{t("create_one")}</button>
       </div>
+
     </div>
   );
 }
+

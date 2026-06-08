@@ -87,7 +87,24 @@ const resources = {
       "hindi": "हिंदी (Hindi)",
       "punjabi": "ਪੰਜਾਬੀ (Punjabi)",
       "inventory": "Inventory",
-      "soil_health": "Soil Health"
+      "soil_health": "Soil Health",
+      "finance": "Finance",
+      "diagnose_disease": "Diagnose Disease",
+      "live_mandi": "Live Mandi Rates",
+      "govt_schemes": "Govt. Schemes",
+      "book_logistics": "Book Logistics",
+      "rent_machinery": "Rent Machinery",
+      "labor_wages": "Labor & Wages",
+      "d2c_storefront": "D2C Storefront",
+      "schemes_title": "Schemes & Subsidies",
+      "search_schemes": "Search schemes, loans...",
+      "machinery_title": "Machinery Rentals",
+      "labor_title": "Labor & Wages",
+      "d2c_title": "D2C Storefront",
+      "logistics_title": "Logistics & Transport",
+      "shop_title": "Agri Input Store",
+      "check_eligibility": "Check Eligibility & Apply",
+      "eligibility_highlights": "Eligibility Highlights"
     }
   },
   hi: {
@@ -175,7 +192,24 @@ const resources = {
       "hindi": "हिंदी (Hindi)",
       "punjabi": "ਪੰਜਾਬੀ (Punjabi)",
       "inventory": "इन्वेंटरी (Inventory)",
-      "soil_health": "मृदा स्वास्थ्य (Soil Health)"
+      "soil_health": "मृदा स्वास्थ्य (Soil Health)",
+      "finance": "आय-व्यय (Finance)",
+      "diagnose_disease": "रोग पहचानें",
+      "live_mandi": "लाइव मंडी भाव",
+      "govt_schemes": "सरकारी योजनाएं",
+      "book_logistics": "लॉजिस्टिक्स बुक करें",
+      "rent_machinery": "मशीनरी किराए पर लें",
+      "labor_wages": "मजदूर और मजदूरी",
+      "d2c_storefront": "डायरेक्ट टू कंज्यूमर (D2C)",
+      "schemes_title": "योजनाएं और सब्सिडी",
+      "search_schemes": "योजनाएं और ऋण खोजें...",
+      "machinery_title": "मशीनरी रेंटल",
+      "labor_title": "मजदूर एवं मजदूरी",
+      "d2c_title": "डायरेक्ट स्टोर",
+      "logistics_title": "परिवहन",
+      "shop_title": "कृषि स्टोर",
+      "check_eligibility": "पात्रता जांचें और आवेदन करें",
+      "eligibility_highlights": "पात्रता की मुख्य बातें"
     }
   },
   pa: {
@@ -263,7 +297,24 @@ const resources = {
       "hindi": "हिंदी (Hindi)",
       "punjabi": "ਪੰਜਾਬੀ (Punjabi)",
       "inventory": "ਸਟਾਕ / ਇਨਵੈਂਟਰੀ",
-      "soil_health": "ਮਿੱਟੀ ਦੀ ਸਿਹਤ"
+      "soil_health": "ਮਿੱਟੀ ਦੀ ਸਿਹਤ",
+      "finance": "ਵਿੱਤ / ਖਾਤਾ",
+      "diagnose_disease": "ਬਿਮਾਰੀ ਦੀ ਜਾਂਚ",
+      "live_mandi": "ਮੰਡੀ ਦੇ ਭਾਅ",
+      "govt_schemes": "ਸਰਕਾਰੀ ਸਕੀਮਾਂ",
+      "book_logistics": "ਟਰਾਂਸਪੋਰਟ ਬੁੱਕ ਕਰੋ",
+      "rent_machinery": "ਮਸ਼ੀਨਰੀ ਕਿਰਾਏ 'ਤੇ ਲਓ",
+      "labor_wages": "ਮਜ਼ਦੂਰ ਅਤੇ ਦਿਹਾੜੀ",
+      "d2c_storefront": "ਸਿੱਧੀ ਵਿਕਰੀ (D2C)",
+      "schemes_title": "ਸਕੀਮਾਂ ਅਤੇ ਸਬਸਿਡੀਆਂ",
+      "search_schemes": "ਸਕੀਮਾਂ, ਕਰਜ਼ੇ ਖੋਜੋ...",
+      "machinery_title": "ਮਸ਼ੀਨਰੀ ਰੈਂਟਲ",
+      "labor_title": "ਮਜ਼ਦੂਰ ਅਤੇ ਦਿਹਾੜੀ",
+      "d2c_title": "ਸਿੱਧੀ ਵਿਕਰੀ ਸਟੋਰ",
+      "logistics_title": "ਟਰਾਂਸਪੋਰਟ",
+      "shop_title": "ਖੇਤੀ ਸਟੋਰ",
+      "check_eligibility": "ਯੋਗਤਾ ਚੈੱਕ ਕਰੋ ਅਤੇ ਅਪਲਾਈ ਕਰੋ",
+      "eligibility_highlights": "ਯੋਗਤਾ ਦੀਆਂ ਮੁੱਖ ਗੱਲਾਂ"
     }
   }
 };
