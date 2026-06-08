@@ -1,162 +1,134 @@
-# 🌾 KisanSaathi - The Ultimate Smart Farming Companion
-
-[![Live Demo](https://img.shields.io/badge/demo-status_live-green?style=for-the-badge)](https://kisan-saathi.example.com)
-[![CI/CD Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)](#)
-
-Welcome to **KisanSaathi**, a comprehensive, offline-first, multilingual, and AI-powered agricultural companion application built to empower modern farmers. From real-time agronomy AI advice to livestock tracking, crop logistics, and financial reporting, KisanSaathi digitizes the entire farm-to-market lifecycle into a single incredibly optimized progressive web application (PWA).
-
-## 🧰 Tech Stack
-![React 19](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript 5.8](https://img.shields.io/badge/TypeScript_5.8-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
-![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Google Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?style=for-the-badge&logo=google&logoColor=white)
-
----
-
-## ✨ Comprehensive Feature Suite
-
-*(Screenshots placeholder coming soon)*
-
-### 🌱 Agronomy & Farm Management
-- **Crop Management:** Track active crops, land areas, sown dates, expected yield, and maintain a detailed, historical activity diary (sowing, chemical applications, harvesting).
-- **Soil Health Tracker:** Input and visualize NPK (Nitrogen, Phosphorus, Potassium) values, pH levels, and receive data-driven recommendations to rejuvenate soil health.
-- **Disease Detection:** Snap a photo or upload images of your distressed crops. The integrated Gemini AI Vision model will instantly diagnose diseases and suggest biological or chemical remedies.
-- **Task Management & Scheduling:** A built-in To-Do tracker specifically tailored for farming ops (irrigation reminders, harvesting dates).
-
-### 🐄 Livestock & Dairy
-- **Dairy Logs:** Manage cattle herds, breed variants, daily milk production estimates, tagging, and biological status (Dry, Milking, Pregnant).
-- **Yield Analytics:** View graphical charts corresponding to daily milk production.
-
-### ⛈️ Hyper-Local Weather & AI Advisory
-- **Real-time Forecasts:** Deep integration with local weather APIs mapping temperature, humidity, and rainfall.
-- **AI Spray Recommendations:** Gemini models combine live weather data with current crop stages to issue hyper-adaptive "Spray Adisory" windows. It ensures pesticide application doesn't wash out in upcoming rains.
-
-### 📈 Finance, Commercials & Logistics
-- **Agri-Shop (E-commerce):** Browse and purchase high-quality farm inputs like seeds, bio-fertilizers, pesticides, and cattle feed directly in-app.
-- **Market Prices:** Live connectivity to local Mandi updates mapping wholesale commodity pricing for informed selling decisions.
-- **Transport & Logistics Booking:** A complete flow for booking secure truck/tractor transport to haul produce from farm boundaries straight to warehouses or APMC Mandis safely.
-- **Finance & Inventory records:** Track granular expenses, operational income, and maintain stock registers for farm inputs (seeds, chemical inventories).
-- **Reports Generation:** One-click automated PDF generation for month-end farm statements and dairy yields via `jspdf`.
-- **Govt. Schemes Finder:** Dedicated module aggregating Indian central/state farming grants and PM-Kisan subsidies.
-
-### 🌐 Scalable, Offline-First Architecture
-- **No-Internet? No Problem:** Uses IndexedDB (`idb-keyval`) and Session/Local Storage state persistence ensuring farmers can log metrics deep in the field without cellular reception. Auto-rehydrates when re-opening the application.
-- **Multilingual Support:** Implements native translations using `react-i18next` supporting regional languages (English, Hindi, Punjabi) out of the box dynamically mapping to the UI elements.
-- **PWA Ready Interface:** Highly polished, mobile-first design leveraging responsive fluid layouts, safe-area bottom navs, dynamic FABs, and smooth route transitions via `motion/react`.
-- **Theme Support:** Fully configurable toggle covering ambient Light/Dark/System visual themes.
+<div align="center">
+  <h1>🌾 KisanSaathi</h1>
+  <p><b>The Complete Farm-to-Fork Ecosystem: Empowering Farmers, Nourishing Consumers</b></p>
+  <br />
+  
+  [![React 19](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev)
+  [![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com)
+  [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](#)
+  [![Google Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-8E75B2?style=flat-square&logo=google&logoColor=white)](#)
+  [![TypeScript 5.8](https://img.shields.io/badge/TypeScript_5.8-007ACC?style=flat-square&logo=typescript&logoColor=white)](#)
+  
+</div>
 
 ---
 
-## 🛠️ Technical Stack
+Welcome to **KisanSaathi**, a next-generation Agritech platform serving as a dual-sided ecosystem. For **Farmers**, it offers deep, AI-driven agronomy tools, livestock management, and financial insights. For **Consumers**, it provides a transparent Direct-to-Consumer (D2C) marketplace to procure organic, fresh produce straight from the source.
 
-- **Framework:** React 19, TypeScript, Express (API & Build Proxy)
-- **Tooling:** Vite, ESBuild
-- **Styling:** Tailwind CSS (v4)
-- **State Management & Offline Storage:** Custom asynchronous React hook (`useSyncState`) coupled with `idb-keyval` for rapid JSON client-side storage bypassing latency.
-- **Icons & Animations:** `lucide-react` for scalable SVGs and `motion/react` for buttery smooth component unmounting/mounting & transition logic.
-- **Charts & Data Visualization:** `recharts` for robust and responsive interactive data graphs.
-- **AI Engine:** `@google/genai` (Google's official Gen AI Native SDK) driving the Gemini Flash models behind chat, vision disease detection, and analytics.
-- **PDF Generation:** `jspdf` and `jspdf-autotable`.
+By eliminating middlemen, KisanSaathi guarantees maximized agricultural yield via GenAI insights and maximized revenue via direct market access. Completely offline-capable, multilingual, and highly responsive.
+
+## 🌟 Core Ecosystem
+
+KisanSaathi is divided into two deeply integrated experiences. User roles are natively handled during authentication.
+
+### 👨‍🌾 For Farmers (Agrifintech & Management)
+- **Crop & Soil Diagnostics:** Comprehensive digital ledgers tracking crops, NPK soil health, and land area allocations.
+- **AI Disease Detection:** Instantly diagnose plant diseases by simply capturing a photo. The platform leverages Google's Gemini Vision models to automatically assess leaf pathology and recommend exact countermeasures.
+- **Livestock & Dairy Engine:** Digital tracking of herds, dairy milk yield analytics, and biological state logs.
+- **Hyper-Local Intelligence:** Connected APIs fetching real-time weather layers, enabling **AI Spray Recommendations** so chemical applications are never washed out by unpredicted rains.
+- **Logistics & Machinery Hub:** Need a tractor or transport? A robust dashboard to acquire or lease heavy machinery and request labor seamlessly.
+- **Financial Intelligence:** Automatic, offline-first ledger generation for expenses, revenues, and automated PDF Month-End Report generation.
+- **D2C Storefront Configurator:** List cultivated produce directly on the consumer market platform, defining stock quantities and per-kg pricing.
+
+### 🍅 For Consumers (Direct-to-Consumer Marketplace)
+- **Verified Farmer Directory:** Browse authentic, certified locational farmers natively. View their farm size, ratings, and operating locations.
+- **Fresh Produce Marketplace:** A beautiful shopping experience featuring categorized fresh yields (Vegetables, Fruits, Dairy, Grains).
+- **Subscription Engine:** Intelligent food-security subscriptions. Consumers unlock fixed-price supply lines.
+  - **Free Tier:** 30 Days free, max 5 quintals.
+  - **Monthly Plan:** Order up to 15 quintals of organic produce regularly.
+  - **Yearly Plan:** Order up to 30 quintals throughout the year without supply chain markup.
+- **Cart & Order Tracking:** End-to-end cart state management synchronizing live with Firebase Firestore. Track active orders intuitively.
+
+---
+
+## 🛠️ Technology Stack
+
+We believe in a deeply optimized, unified full-stack architecture prioritizing performance and scale:
+
+* **Frontend Engine:** React 19 + TypeScript (strict typing) powered by Vite.
+* **Component Styling:** Tailwind CSS v4 featuring motion/react for 60-FPS layout transition and micro-interactions.
+* **Database & Auth:** Firebase Auth and Cloud Firestore (providing NoSQL scalable cloud persistence with live snapshot subscriptions).
+* **AI & Intelligence:** Google `@google/genai` natively mapping to Gemini Flash for fast conversational advisory and visual parsing.
+* **Offline Mechanics:** Local-first methodology utilizing `idb-keyval` paired with custom reactive sync hooks for offline-resilience in low-bandwidth rural zones.
+* **Backend Gateway:** Monolithic Express.js proxy ensuring AI API keys and external platform tokens are securely terminated server-side.
+
+---
+
+## 🎨 Visual Journey & UI/UX
+
+KisanSaathi avoids generic default aesthetics, implementing intentional design constraints:
+- **Responsive Layouts:** The core UI scales flawlessly from ultra-wide desktops to 300px width mobile screens utilizing Tailwind safe-area configurations.
+- **Bento Grids & Micro-Interactions:** Modern dashboard structures (bento-grids) coupled with staggered fading mounting animations and elegant native Lucide icons.
+- **Data Visualizations:** Recharts powers the dairy yield, soil nutrient, and financial dashboards delivering smooth SVGs without heavy dependencies.
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### Local Development Requirements
+Ensure you have Node.js (v20+) or Docker installed.
 
-Ensure you have Node.js (v20 or higher) installed in your environment, or Docker if you prefer containerized deployment.
+1. **Clone the Repository**
+2. **Environment Configuration**  
+   Create a `.env` in the project root containing your sensitive tokens:
+   ```env
+   # Mandatory for Gen-AI functionality
+   GEMINI_API_KEY=your_gemini_key_here
 
-You need to provide your own API keys for the services to function properly. See `.env.example` in the root folder. Create a local `.env` file and add the following keys:
+   # Secondary Integrations (Weather and Market APIs)
+   OPENWEATHER_API_KEY=your_open_weather_key
+   DATAGOVIN_API_KEY=your_data_gov_key
+   ```
+   *(Ensure you have `firebase-applet-config.json` containing the Firebase SDK config mapped).*
 
-```env
-# Required for AI Features (Disease detection, chat advisory)
-GEMINI_API_KEY=your_google_gemini_api_key_here
-
-# Optional: Fetches local weather forecasts and spray recommendations
-OPENWEATHER_API_KEY=your_openweathermap_api_key_here
-
-# Optional: Real-time Mandi market prices in India
-DATAGOVIN_API_KEY=your_datagov_api_key_here
-```
-
-### Installation
-
-#### Option A: Local Node.js Setup
-1. **Install Dependencies**
+3. **Install Dependencies**
    ```bash
    npm install
    ```
 
-2. **Run Development Server**
-   Start the development server which exposes both the Express backend and the Vite HMR.
+4. **Launch Development Server**
    ```bash
    npm run dev
    ```
-   > The application will automatically route requests mapping `/api` to the backend Express block while Vite manages hot module swapping on the frontend.
+   *The Express edge server starts up and serves the Vite HMR application asynchronously at `http://localhost:3000`.*
 
-3. **Build Core & Run Production**
-   Compiles the frontend SPA into static `/dist` and transpiles the monolithic `server.ts` into CommonJS format.
-   ```bash
-   npm run build
-   npm start
-   ```
+### Building for Production
+The solution bundles smoothly into standalone static JS via ESBuild and Vite. 
+```bash
+npm run build
+npm start
+```
 
-#### Option B: Docker Container Deployment
-KisanSaathi includes a complete multi-stage Dockerfile for optimized production usage.
-
-1. **Build the Docker Image**
-   ```bash
-   docker build -t kisan-saathi .
-   ```
-
-2. **Run the Container**
-   ```bash
-   docker run -p 3000:3000 --env-file .env kisan-saathi
-   ```
+### Containerization (Docker)
+A production-ready `Dockerfile` is integrated. 
+```bash
+docker build -t kisan-saathi-app .
+docker run -p 3000:3000 --env-file .env kisan-saathi-app
+```
 
 ---
 
-## 🛠 CI/CD
-This project includes automated workflows configured for GitHub Actions (`.github/workflows/ci.yml`). 
-It automatically checks type integrity, lints code, and ensures the build succeeds on every Pull Request or push to `main`.
+## 🛡️ Security & Architecture Flow
 
-## 🏗️ Project Architecture Breakdown
+Instead of exposing tokens to the browser environment, KisanSaathi executes strict **Server-Side Rendering Proxies**:
+1. React client detects intent (e.g. "Diagnose this crop image").
+2. Client securely executes `fetch('/api/gemini/vision', ... )` towards the internal Express mount.
+3. Express validates rate-limits, attaches the secretive `GEMINI_API_KEY`, executes the request to Google, and filters malicious payloads, ensuring maximum compliance and secure operation.
 
-The project relies on a monolithic separation of Express APIs and a Vite React app frontend:
-- `/server.ts` - Edge entry point. Serves static React build files in production, mounts Vite middleware in development, and securely hosts `/api` proxy routes terminating API keys out of client reach.
-- `/src/App.tsx` - Root React container defining the standard `react-router-dom` definitions, context wrappers, splash screen mount points, and global layout bindings.
-- `/src/screens/` - Modular, independent views of the application spanning `HomeScreen`, `ShopScreen`, `LogisticsScreen`, `AIScreen`, etc.
-- `/src/lib/` - Shared business logic containing API abstractions, Context engines (`AuthContext`, `ThemeContext`), translation dictionaries, and persistence modules.
-- `/src/components/` - Abstracted and shared UI snippets independent of screen context.
+Firestore rules (`firestore.rules`) act as the absolute source of truth on the persistent layer, guaranteeing consumers can only read marketplace arrays, and farmers can only mutate their isolated agricultural sub-collections.
 
 ---
 
-## 🛡️ Privacy & Data Ownership
-
-KisanSaathi strongly aligns with modern data privacy paradigms. By operating predominantly *Offline-First*, critical operational farm data, yield logs, inventory numbers, and personal details (like verification sessions) are strictly retained within the device boundaries of the local browser. Unless explicitly querying the generative AI assistants or cloud APIs, sensitive financial logic completely avoids networked transmission. 
-
----
-
-## 💾 Data Sources & Acknowledgements
-- **Weather Forecasts:** Powered by [OpenWeatherMap API](https://openweathermap.org/) Free Tier.
-- **Mandi Market Prices:** Daily commodities data provided via Govt of India's [Agmarknet / data.gov.in](https://data.gov.in/).
-- **Generative AI:** Google's latest [Gemini 2.5 Flash](https://aistudio.google.com/) running on `@google/genai` Node.js Native SDK.
+## 🤝 Contribution Guidelines
+This ecosystem is actively developed to tackle immense infrastructural gaps in global farming chains.
+1. Fork the repo and create your branch (`feature/SmartIrrigation`).
+2. Utilize Semantic Commits.
+3. Keep UI modifications mapped inside the strict Tailwind CSS standard configurations.
+4. Pass the TypeScript Linter (`npm run lint`).
+5. Open a Pull Request.
 
 ---
 
-## 🤝 Contributing
-
-Contributions are always welcome. As an offline-first PWA, we strongly focus on UX limits under poor 3G/offline networks.
-
-1. Fork the project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingAgriFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingAgriFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingAgriFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License & Credits
-
-This project is intended to be used as an open architectural reference for sophisticated, highly interconnected, offline-first agricultural and progressive web applications.
+<p align="center">
+  <i>Cultivated with love for the Agricultural Community.</i>
+</p>
