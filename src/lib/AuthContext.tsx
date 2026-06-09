@@ -135,23 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
         
-        if (authErr.code === 'auth/network-request-failed' || authErr.message === 'timeout') {
-          // If network failed but user isn't found locally either, check if we can simulate login to make user experience pleasant
-          const fallbackUser: User = {
-            uid: 'user_' + cleanedPhone,
-            name: 'Local Farmer / Consumer',
-            email: email,
-            role: cleanedPhone.endsWith('0') ? 'consumer' : 'supplier', // dynamic role choosing
-            phone: cleanedPhone,
-            village: 'Green Village',
-            state: 'Punjab'
-          };
-          setUser(fallbackUser);
-          localStorage.setItem('ks_session_user', JSON.stringify(fallbackUser));
-          localStorage.setItem('ks_is_local_only', 'true');
-          return true;
-        }
-        throw authErr;
+        throw new Error("No account found for this phone number. Please register first.");
       }
     } catch (e: any) {
       console.error(e);
