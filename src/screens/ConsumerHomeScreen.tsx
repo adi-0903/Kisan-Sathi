@@ -314,12 +314,16 @@ export function ConsumerHomeScreen() {
 
                     <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-gray-50">
                       <div className="text-base font-black text-emerald-700">₹{p.price}<span className="text-[9px] font-normal text-gray-500 ml-0.5">/{p.unit}</span></div>
-                      <button 
-                        onClick={() => addToCart(p)}
-                        className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold hover:bg-emerald-700 shadow-sm hover:scale-105 active:scale-95 transition-all text-sm"
-                      >
-                        +
-                      </button>
+                      {p.status === 'Out of Stock' ? (
+                        <div className="text-[10px] font-bold text-red-500 px-2 py-1 bg-red-50 rounded-md">Out of Stock</div>
+                      ) : (
+                        <button 
+                          onClick={() => addToCart(p)}
+                          className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold hover:bg-emerald-700 shadow-sm hover:scale-105 active:scale-95 transition-all text-sm"
+                        >
+                          +
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))

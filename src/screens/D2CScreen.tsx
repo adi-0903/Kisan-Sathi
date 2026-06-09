@@ -3,7 +3,7 @@ import { Store, Plus, Tag, MapPin, Search, Package, TrendingUp, X, Image as Imag
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../lib/AuthContext';
-import { db, collection, query, where, onSnapshot, addDoc, serverTimestamp, doc, updateDoc } from '../lib/firebase';
+import { db, collection, query, where, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, deleteDoc } from '../lib/firebase';
 
 export function D2CScreen() {
   const { t } = useTranslation();
@@ -14,6 +14,7 @@ export function D2CScreen() {
   const [orders, setOrders] = useState<any[]>([]);
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const [newProduct, setNewProduct] = useState<any>({
     name: '',
     category: 'Vegetables',
@@ -46,23 +47,34 @@ export function D2CScreen() {
   }, [user, activeTab]);
 
 
-  const handleAddProduct = async () => {
-    if (!newProduct.name || !newProduct.price || !newProduct.quantity || !user) return;
+  const handleSaveProduct = async () => {
+    if (!newProduct.name || !newProduct.price || newProduct.quantity === undefined || !user) return;
     
     try {
-      await addDoc(collection(db, 'products'), {
-        supplierId: user.uid,
-        name: newProduct.name,
-        category: newProduct.category || 'Vegetables',
-        price: Number(newProduct.price),
-        unit: newProduct.unit || 'kg',
-        quantity: Number(newProduct.quantity),
-        image: newProduct.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=200&q=80',
-        status: 'Listed',
-        createdAt: serverTimestamp()
-      });
+      if (editingProduct) {
+        await updateDoc(doc(db, 'products', editingProduct.id), {
+          name: newProduct.name,
+          category: newProduct.category || 'Vegetables',
+          price: Number(newProduct.price),
+          unit: newProduct.unit || 'kg',
+          quantity: Number(newProduct.quantity),
+        });
+      } else {
+        await addDoc(collection(db, 'products'), {
+          supplierId: user.uid,
+          name: newProduct.name,
+          category: newProduct.category || 'Vegetables',
+          price: Number(newProduct.price),
+          unit: newProduct.unit || 'kg',
+          quantity: Number(newProduct.quantity),
+          image: newProduct.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=200&q=80',
+          status: 'Listed',
+          createdAt: serverTimestamp()
+        });
+      }
 
       setShowAddModal(false);
+      setEditingProduct(null);
       setNewProduct({
         name: '',
         category: 'Vegetables',
@@ -73,7 +85,42 @@ export function D2CScreen() {
       });
     } catch (e) {
       console.error(e);
-      alert("Error adding product");
+      alert("Error saving product");
+    }
+  };
+
+  const handleEditClick = (p: any) => {
+    setEditingProduct(p);
+    setNewProduct({
+      name: p.name,
+      category: p.category,
+      price: p.price,
+      unit: p.unit,
+      quantity: p.quantity,
+      status: p.status
+    });
+    setShowAddModal(true);
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await deleteDoc(doc(db, 'products', id));
+      } catch (e) {
+        console.error(e);
+        alert("Error deleting product");
+      }
+    }
+  };
+
+  const handleToggleStock = async (p: any) => {
+    try {
+      await updateDoc(doc(db, 'products', p.id), {
+        status: p.status === 'Listed' ? 'Out of Stock' : 'Listed'
+      });
+    } catch (e) {
+      console.error(e);
+      alert("Error updating product status");
     }
   };
 
@@ -125,7 +172,18 @@ export function D2CScreen() {
         {activeTab === 'listings' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <button 
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                setEditingProduct(null);
+                setNewProduct({
+                  name: '',
+                  category: 'Vegetables',
+                  price: 0,
+                  unit: 'kg',
+                  quantity: 0,
+                  status: 'Listed'
+                });
+                setShowAddModal(true);
+              }}
               className="w-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 border-dashed rounded-xl p-4 flex items-center justify-center space-x-2 font-bold transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
             >
               <Plus size={20} />
@@ -156,9 +214,17 @@ export function D2CScreen() {
                       <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                         ₹{p.price}<span className="text-sm text-gray-500 font-normal">/{p.unit}</span>
                       </div>
-                      <button className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
-                        Edit
-                      </button>
+                      <div className="flex gap-2 flex-wrap justify-end">
+                        <button onClick={() => handleToggleStock(p)} className={`px-3 py-1 text-xs font-bold rounded-lg ${p.status === 'Listed' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-900/50' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50'}`}>
+                          {p.status === 'Listed' ? 'No stock' : 'Restock'}
+                        </button>
+                        <button onClick={() => handleEditClick(p)} className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                          Edit
+                        </button>
+                        <button onClick={() => handleDeleteProduct(p.id)} className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50">
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -240,13 +306,13 @@ export function D2CScreen() {
               className="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl overflow-hidden shadow-xl"
             >
               <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold text-lg text-gray-800 dark:text-white">New Listing</h3>
+                <h3 className="font-bold text-lg text-gray-800 dark:text-white">{editingProduct ? 'Edit Listing' : 'New Listing'}</h3>
                 <button onClick={() => setShowAddModal(false)} className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500 hover:text-gray-800 dark:hover:text-white">
                   <X size={20} />
                 </button>
               </div>
               
-              <form onSubmit={(e) => { e.preventDefault(); handleAddProduct(); }} className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
+              <form onSubmit={(e) => { e.preventDefault(); handleSaveProduct(); }} className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">Product Name</label>
                   <input 
@@ -317,7 +383,7 @@ export function D2CScreen() {
                   disabled={!newProduct.name || newProduct.price === undefined || newProduct.price === 0 || newProduct.quantity === undefined || newProduct.quantity === 0}
                   className="w-full bg-gradient-to-r from-emerald-600 to-green-500 text-white font-bold py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
                 >
-                  List Product
+                  {editingProduct ? 'Update Product' : 'List Product'}
                 </button>
               </div>
               </form>

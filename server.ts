@@ -480,6 +480,27 @@ Respond in JSON format: { "recommendation": "Spray Now / Wait", "reasoning": "Si
     }
   });
 
+  // Neon DB Test Route
+  app.get("/api/test-neon", async (req, res) => {
+    try {
+      const { db } = await import("./src/db/index.js");
+      const { neonTestTable } = await import("./src/db/schema.js");
+      
+      let testData = await db.select().from(neonTestTable).limit(5).catch((err: any) => {
+         throw new Error("Table might not exist yet. Run drizzle-kit push! " + err.message);
+      });
+      
+      if (testData.length === 0) {
+        await db.insert(neonTestTable).values({ message: "Hello from Neon Postgres Database!" });
+        testData = await db.select().from(neonTestTable).limit(5);
+      }
+      
+      res.json({ status: "neon_connected", connectionType: "pooler", data: testData });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to connect to Neon DB" });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

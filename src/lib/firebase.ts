@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { initializeFirestore, setLogLevel, collection as realCollection, query as realQuery, where as realWhere, onSnapshot as realOnSnapshot, addDoc as realAddDoc, setDoc as realSetDoc, getDoc as realGetDoc, updateDoc as realUpdateDoc, doc as realDoc } from 'firebase/firestore';
+import { initializeFirestore, setLogLevel, collection as realCollection, query as realQuery, where as realWhere, onSnapshot as realOnSnapshot, addDoc as realAddDoc, setDoc as realSetDoc, getDoc as realGetDoc, updateDoc as realUpdateDoc, doc as realDoc, deleteDoc as realDeleteDoc } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 setLogLevel('silent');
@@ -274,6 +274,25 @@ export async function updateDoc(docRef: any, data: any) {
     saveLocalCollection(collectionName, items);
     triggerLocalListeners(collectionName);
   }
+}
+
+export async function deleteDoc(docRef: any) {
+  const { collectionName, id } = docRef;
+
+  if (!useLocalFallback) {
+    try {
+      const realDocRef = realDoc(db, collectionName, id);
+      await withTimeout(realDeleteDoc(realDocRef));
+    } catch (e: any) {
+      console.warn("Firestore real deleteDoc failed, enabling local fallback:", e.message);
+      useLocalFallback = true;
+    }
+  }
+
+  const items = getLocalCollection(collectionName);
+  const updatedItems = items.filter(item => item.id !== id && item.uid !== id);
+  saveLocalCollection(collectionName, updatedItems);
+  triggerLocalListeners(collectionName);
 }
 
 export function onSnapshot(queryOrRef: any, onNext: (snap: any) => void, onError?: (err: any) => void) {
